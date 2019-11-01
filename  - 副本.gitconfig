@@ -1,0 +1,31 @@
+[gui]
+	recentrepo = C:/Users/daiqiang/go/src/kdd-recommender-go
+[user]
+	email = flameday@163.com
+	name = flameday
+[gui]
+	encoding = utf-8
+[i18n]
+	commitencoding = utf-8
+[svn]
+	pathnameencoding = utf-8
+ 
+ 
+#使用beyond compare来查看文件差异
+[diff]
+	#对比工具名称,必须与difftool项里的名称保持一致
+	tool = bc4
+[difftool "bc4"]
+	#beyond compare路径和调用命令
+	#$REMOTE 表示commit之后的文件
+	#LOCAL 表示commit到git的文件
+	cmd = " 'C:\\Program Files\\Beyond Compare 4\\bcomp.exe' $REMOTE $LOCAL"
+	#合并分支
+[merge]
+	#对比工具名称,必须与mergetool项里的名称保持一致
+	tool = bc4
+[mergetool]
+	prompt = false
+[mergetool "bc4"]
+	#beyond compare路径和调用命令
+	cmd = " 'C:\\Program Files\\Beyond Compare 4\\bcomp.exe' $LOCAL $REMOTE $BASE $MERGED "
