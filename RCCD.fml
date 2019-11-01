@@ -1,0 +1,25 @@
+//------------------------------------------------------------------------
+// 简称:RCCD
+// 名称:异同离差变化率指数
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer N(59);
+	Integer N1(21);
+	Integer N2(28);
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	Numeric RC =C/REF(C,N);
+	Numeric ARC = SMA(REF(RC,1),N,1);
+	Numeric DIF = MA(REF(ARC,1),N1)-MA(REF(ARC,1),N2);
+	Numeric RCCD = SMA(DIF,N,1);
+	
+	PlotNumeric("DIF",DIF);
+	PlotNumeric("RCCD",RCCD);
+End

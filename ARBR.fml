@@ -1,0 +1,22 @@
+//------------------------------------------------------------------------
+// 简称:ARBR
+// 名称:人气意愿指标
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer N(26);
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	Numeric AR = SummationFC(HIGH-OPEN,N)/SummationFC(OPEN-LOW,N)*100;
+	Numeric BR = SummationFC(MAX(0,HIGH-REF(CLOSE,1)),N)/
+     Summation(MAX(0,REF(CLOSE,1)-LOW),N)*100;
+	 
+	PlotNumeric("AR",AR);
+	PlotNumeric("BR",BR);
+End

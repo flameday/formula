@@ -1,0 +1,19 @@
+//--------------------------------------------------------------
+// 简称: getArrSum
+// 名称: getArrSum
+// 类型: 用户函数
+// 输出: Numeric
+//--------------------------------------------------------------
+Params
+	NumericArray arr;
+Vars
+	Numeric sum;
+Begin
+	Integer size = ArrLength(arr);
+	Integer i;
+	sum = 0;
+	for i = 0 to size-1 {
+		sum += arr[i];
+	}
+	Return sum;
+End

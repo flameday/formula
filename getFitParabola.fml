@@ -1,0 +1,44 @@
+//--------------------------------------------------------------
+// 简称: getFitParabola
+// 名称: 双曲线拟合
+// 类型: 用户函数
+// 输出: Numeric
+//--------------------------------------------------------------
+Params
+	NumericArray xArr;
+	NumericArray yArr;
+	NumericArrayRef paramsArray;
+Vars
+Begin
+		//二次方程拟合
+		ShowArr("xArr", xArr); 
+		Commentary("getArrSum(xArr)= " + Text(getArrSum(xArr)));
+		Commentary("getArrSum(yArr)= " + Text(getArrSum(yArr)));
+		Commentary("getArrXYSum(xArr, yArr))= " + Text(getArrXYSum(xArr, yArr)));
+		Commentary("getArrSquareSum(xArr)= " + Text(getArrSquareSum(xArr)));
+		Commentary("getArrSquareSum(yArr)= " + Text(getArrSquareSum(yArr)));
+		
+		NumericArray leftArr;
+		NumericArray rightArr;
+		// 添加值 left
+		ArrAdd(leftArr, ArrLength(xArr));
+		ArrAdd(leftArr, getArrSum(xArr));
+		ArrAdd(leftArr, getArrSquareSum(xArr,2));
+		
+		ArrAdd(leftArr, getArrSum(xArr));
+		ArrAdd(leftArr, getArrSquareSum(xArr,2));
+		ArrAdd(leftArr, getArrSquareSum(xArr,3));
+		
+		ArrAdd(leftArr, getArrSquareSum(xArr,2));
+		ArrAdd(leftArr, getArrSquareSum(xArr,3));
+		ArrAdd(leftArr, getArrSquareSum(xArr,4));
+		
+		//right
+		ArrAdd(rightArr, getArrSum(yArr));
+		ArrAdd(rightArr, getArrXYSum(xArr, yArr));
+		ArrAdd(rightArr, getArrXYSum(xArr, yArr, 2, 1));
+		
+		Numeric k = getParamByGaussJordan(leftArr, rightArr, paramsArray);
+		Commentary("k="+Text(k));
+		return k;
+End

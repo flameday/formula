@@ -1,0 +1,24 @@
+//------------------------------------------------------------------------
+// 简称:BBIBOLL
+// 名称:多空布林带
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer N(10);
+	Numeric P(3);
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	Numeric BBI = (MA(CLOSE,3)+MA(CLOSE,6)+MA(CLOSE,12)+MA(CLOSE,24))/4;
+	Numeric UPR = BBI+P*StandardDev(BBI,N);
+	Numeric DWN = BBI-P*StandardDev(BBI,N);
+	
+	PlotNumeric("BBI",BBI);
+	PlotNumeric("UPR",UPR);
+	PlotNumeric("DWN",DWN);
+End

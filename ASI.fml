@@ -1,0 +1,26 @@
+//------------------------------------------------------------------------
+// 简称:ASI
+// 名称:振动升降指标
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+	NumericSeries ASI(0);
+Begin		
+	//策略执行区
+	Numeric LC = REF(CLOSE,1);
+	Numeric AA = ABS(HIGH-LC);
+	Numeric BB = ABS(LOW-LC);
+	Numeric CC = ABS(HIGH-REF(LOW,1));
+	Numeric DD = ABS(LC-REF(OPEN,1));
+	Numeric R = IIF(AA>BB AND AA>CC,AA+BB/2+DD/4,IIF(BB>CC AND BB>AA,BB+AA/2+DD/4,CC+DD/4));
+	Numeric X = (CLOSE-LC+(CLOSE-OPEN)/2+LC-REF(OPEN,1));
+	Numeric SI = 16*X/R*MAX(AA,BB);
+	ASI = ASI[1] + SI;
+	PlotNumeric("ASI",ASI);
+End

@@ -1,0 +1,27 @@
+//------------------------------------------------------------------------
+// 简称:ADTM
+// 名称:动态买卖气指标
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer N(23);
+	Integer M(8);
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	Numeric DTM = IIF(O<=REF(O,1),0,MAX((H-O),(O-REF(O,1))));
+	Numeric DBM = IIF(O>=REF(O,1),0,MAX((O-L),(O-REF(O,1))));
+	Numeric STM = SummationFC(DTM,N);
+	Numeric SBM = SummationFC(DBM,N);
+	
+	Numeric ADTM = IIF(STM>SBM,(STM-SBM)/STM,IIF(STM==SBM,0,(STM-SBM)/SBM));
+	Numeric MA1  = MA(ADTM,M);
+	
+	PlotNumeric("ADTM",ADTM);
+	PlotNumeric("MA1",MA1);
+End

@@ -1,0 +1,33 @@
+//--------------------------------------------------------------
+// 简称: getArrXYSum
+// 名称: getArrXYSum
+// 类型: 用户函数
+// 输出: Numeric
+//--------------------------------------------------------------
+Params
+	NumericArray xArr;
+	NumericArray yArr;
+	Integer xSquare(1);
+	Integer ySquare(1);
+Vars
+	Numeric sum;
+Begin
+	Integer size = ArrLength(xArr);
+	if (size != ArrLength(yArr)) {
+		return -10000000000000;
+	}
+	
+	Integer i;
+	sum = 0;
+	for i = 0 to size-1 {
+		if (xSquare == 1 && ySquare == 1) {
+			sum += xArr[i]*yArr[i];
+		} else if (xSquare == 2 && ySquare == 1) {
+			sum += xArr[i]*xArr[i]*yArr[i];
+		} else if (xSquare == 2 && ySquare == 2) {
+			sum += xArr[i]*xArr[i]*yArr[i]*yArr[i];
+		} 
+		//Commentary("---->sum:"+Text(sum));
+	}
+	Return sum;
+End

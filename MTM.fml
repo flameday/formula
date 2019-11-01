@@ -1,0 +1,22 @@
+//------------------------------------------------------------------------
+// 简称:MTM
+// 名称:动力指标
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer N(6);
+	Integer N1(6);
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	Numeric MTM = CLOSE-REF(CLOSE,N);
+	Numeric MTMMA = AverageFC(MTM,N1);
+	
+	PlotNumeric("MTM",MTM);
+	PlotNumeric("MTMMA",MTMMA);
+End

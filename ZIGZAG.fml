@@ -1,0 +1,100 @@
+//------------------------------------------------------------------------
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+
+Params
+	Numeric RetracePct(2);
+Vars	
+	Numeric SwingHighPrice;
+	Numeric SwingLowPrice;
+GlobalVars
+	Integer PreBar(0);
+	Integer UpDn(1);
+	Numeric SwingPrice;	
+	Integer FirstDot(0);
+Begin
+	SwingHighPrice = SwingHigh( 1, H, 1,2);
+	SwingLowPrice = SwingLow( 1, L, 1, 2 );
+		
+		bool bTop = SwingHighPrice != -1;
+		bool bBtm = SwingLowPrice != -1;
+		if(bTop && bBtm)
+		{
+			if(UpDn==1)
+			{
+				bBtm=False;				
+			}			
+			Else{
+				bTop=False;
+			}
+		}
+		
+		If (bTop)
+		{
+			
+			If(UpDn ==-1 && SwingHighPrice >= SwingPrice * (1+RetracePct*0.01))
+			{
+				if(FirstDot==0)
+				{
+					FirstDot=CurrentBar-1;
+					PlotNumeric("ZigZag",L[CurrentBar],-1,CurrentBar);
+				}
+				UpDn = 1;
+				SwingPrice = SwingHighPrice;
+				PreBar = CurrentBar-1;
+				PlotNumeric("ZigZag",SwingPrice,-1,1);
+			}
+			Else If(UpDn == 1 && SwingHighPrice >= SwingPrice)
+			{
+				SwingPrice = SwingHighPrice;
+				
+				Unplot("ZigZag",CurrentBar- PreBar);
+				
+				PlotNumeric("ZigZag",SwingHighPrice,-1,1);
+				if(FirstDot==PreBar)
+				{
+					FirstDot=CurrentBar-1;
+					PlotNumeric("ZigZag",L[CurrentBar],-1,CurrentBar);
+				}
+				PreBar = CurrentBar-1;
+			}
+	
+		}
+		Else If(bBtm)
+		{
+			
+			If(UpDn ==1 && SwingLowPrice <= SwingPrice * (1-RetracePct*0.01))
+			{
+				if(FirstDot==0)
+				{
+					FirstDot=CurrentBar-1;
+					PlotNumeric("ZigZag",H[CurrentBar],-1,CurrentBar);
+				}
+				UpDn = -1;
+				SwingPrice = SwingLowPrice;
+				PreBar = CurrentBar-1;
+				PlotNumeric("ZigZag",SwingPrice,-1,1);
+				
+			}Else If(UpDn == -1 && SwingLowPrice <= SwingPrice)
+			{
+				SwingPrice = SwingLowPrice;
+				
+				Unplot("ZigZag",CurrentBar-PreBar);
+				PlotNumeric("ZigZag",SwingLowPrice,-1,1);
+				
+				if(FirstDot==PreBar)
+				{
+					FirstDot=CurrentBar-1;
+					PlotNumeric("ZigZag",H[CurrentBar],-1,CurrentBar);
+				}
+				PreBar = CurrentBar-1;
+			}
+	
+				
+		}
+		
+		
+
+	
+End

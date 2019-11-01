@@ -1,0 +1,385 @@
+//------------------------------------------------------------------------
+// 简称:waveAvg150Sys
+// 名称:均线数浪系统
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+//------------------------------------------------------------------------
+// 简称:WaveMachine
+// 名称:计算机数浪
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params         
+		Numeric Lots(1);
+		
+GlobalVars
+Vars
+		Bool flag(False);
+		Integer minCount(0);
+		Integer maxCount(0);
+		NumericSeries avg10;
+		NumericSeries lowArr;
+		NumericSeries highArr;
+		NumericSeries closeArr;
+		NumericSeries avg150;
+		Integer offset;
+		Integer i;
+		
+		Integer lastMin(-1);
+		Integer lastMax(-1);
+		Integer oldMin;
+		Integer oldMax;
+		Numeric lastEnter(0);//[index 10] 0: init  >0 buy  <0 sell
+		Numeric profit(0);//[index 11] 0: init  >0 buy  <0 sell
+		Integer lastPosition(0);//[index 12] 0
+		
+		Integer index0;
+		Integer index1;
+		Integer m;
+		Integer x1;
+		Integer x2;
+		Numeric y1;
+		Numeric y2;
+		Numeric slope(0);
+		Numeric diff;
+		Numeric yMax;
+		Numeric yMin;
+		Integer startX;
+		Numeric xMean;
+		Numeric yMean;
+		Numeric xSum;
+		Numeric ySum;
+		Numeric k;
+		Numeric b;
+		Integer xLeft;
+		Integer xRight;
+		Numeric yLeft;
+		Numeric yRight;
+		Numeric A_Sum;
+		Numeric B_Sum;
+		Numeric C_Sum;
+		Numeric D_Sum;
+		Numeric x_i;
+		Numeric y_i;
+		Integer currentIndex;
+		NumericArray bottomArr;
+		NumericArray topArr;
+		
+		Integer highCntFromLastMin(0);
+		Integer lowCntFromLastMin(0);
+		
+		Integer highCntFromLastMax(0);
+		Integer lowCntFromLastMax(0);
+		Numeric tmp;
+				
+Begin
+		
+		// wave数浪
+		//commentary("start="+text(currenttime));
+		avg150 = AverageFC(Close, 150);
+		avg10  = AverageFC(Close, 10);
+		lowArr = AverageFC(Low, 1);
+		highArr= AverageFC(High, 1);
+		if (CurrentBar == 0) {
+			SetGlobalVar(0, -1);
+			SetGlobalVar(1, -1);
+			
+			SetGlobalVar(10, 0);
+			SetGlobalVar(11, 0);
+			SetGlobalVar(12, 0);
+			
+			SetGlobalVar(49, -1);
+			SetGlobalVar(39, -1);
+		}
+		lastMin = GetGlobalVar(0);
+		lastMax = GetGlobalVar(1);
+		oldMin = lastMin;
+		oldMax = lastMax;
+		
+		lastEnter = GetGlobalVar(10);
+		profit = GetGlobalVar(11);
+		lastPosition = GetGlobalVar(12);
+		
+		//UnPlotPartLine("tail", highArr[1]);
+		//UnPlotPartLine("tail", lowArr[1]);
+		
+		index0 = GetGlobalVar(49);//表示待写入值
+		index1 = GetGlobalVar(39);//表示待写入值
+		
+		//设置第一个Dot
+		if (lastMax == -1) {
+			maxCount = 0;
+			for i=0 to CurrentBar {
+				if (lowArr[i] > avg10[i]){
+					maxCount += 1;
+				}
+				//绘制
+				if (maxCount >= 3 && lastMax == -1) {
+					lastMax = i;
+					SetGlobalVar(1, i);
+					break;
+				}
+			}
+		}
+		//设置第一个Dot
+		if (lastMin == -1) {
+			minCount = 0;
+			for i=0 to CurrentBar {
+				if (highArr[i] < avg10[i]) {
+					minCount += 1;
+				}
+				//绘制
+				if (minCount >= 3 && lastMin == -1) {
+					lastMin = i;
+					SetGlobalVar(0, i);
+					break;
+				}
+			}
+		}
+		if (lastMax == -1 && lastMin == -1) {
+			//
+		} else {
+			if (lastMax == -1) {
+				lastMax = 0;
+			}
+			if (lastMin == -1) {
+				lastMin = 0;
+			}
+			// 统计数据
+			for offset = 0 to CurrentBar - lastMax {
+				if (lowArr[offset] > avg10[offset]){
+					highCntFromLastMax += 1;
+				} 
+				if (highArr[offset] < avg10[offset]) {
+					lowCntFromLastMax += 1;
+				}
+			}
+			for offset = 0 to CurrentBar - lastMin{
+				if (lowArr[offset] > avg10[offset]){
+					highCntFromLastMin += 1;
+				}
+				if (highArr[offset] < avg10[offset]) {
+					lowCntFromLastMin += 1;
+				}
+			}
+			// 判断1：掉头向下？
+			if (lastMin < lastMax) {
+				if (highCntFromLastMin >= 3) {
+					//高度比较
+					if (highArr[CurrentBar - lastMax] > highArr[0]){
+						//keep old
+					} else{
+						//更高
+						lastMax = CurrentBar;
+						SetGlobalVar(1, CurrentBar);
+					}
+				}
+				if (lowCntFromLastMax >= 3) {
+					//保存上一个lastMin
+					index0 = (index0 +1)%9;
+					SetGlobalVar(40 + index0, lastMin);
+					SetGlobalVar(49, index0);
+					
+					lastMin = CurrentBar;
+					SetGlobalVar(0, CurrentBar);
+					
+					
+				}
+			} else if(lastMin > lastMax) {
+				//判断2：掉头向上？
+				if (lowCntFromLastMax >= 3) {
+					//高度比较
+					if (lowArr[CurrentBar - lastMin] < lowArr[0]) {
+						//keep
+					} else {
+						//更低
+						lastMin = CurrentBar;
+						SetGlobalVar(0, CurrentBar);
+					}
+				}
+				if (highCntFromLastMin >= 3) {
+					index1 = (index1 +1)%9;
+					SetGlobalVar(30+index1, lastMax);
+					SetGlobalVar(39, index1);
+					//保存上一个lastMax
+					lastMax = CurrentBar;
+					SetGlobalVar(1, CurrentBar);
+				}
+			}
+		}
+		
+		Bool isOutsideRiseChannel = False;
+		PlotNumeric("CurrentBar:", CurrentBar);
+		PlotNumeric("lastMax:", lastMax);
+		PlotNumeric("oldMin:", oldMin);
+		// 开始下跌了
+		if (lastMin == oldMin && CurrentBar - lastMax >= 2) {
+			// 从最高点开始偏移3个Bar，也就是一笔，判断是否要动单
+			NumericArray lArr;
+			slope = (highArr[CurrentBar-oldMin] - highArr[CurrentBar-lastMax])/(oldMin - lastMax);
+			NumericArray aArr;
+			NumericArray bArr;
+			NumericArray xArr;
+			for i=oldMin to lastMax {
+				ArrAdd(lArr, lowArr[CurrentBar-i]);
+			}
+			//Commentary("oldMin, lastMax:"+Text(oldMin) + "," +Text(lastMax));
+			//ShowArr("lowArr", lArr);
+			OutsideRiseChannel(lArr, slope, aArr, bArr);
+			//ShowArr("2 aArr", aArr);
+			//ShowArr("2 bArr", bArr);
+			Numeric x = CurrentBar - 1 - oldMin;
+			Numeric y = closeArr[1];
+			// y = y1 +[(y2-y1)/(x2-x1)]*(x-x1)
+			for i=0 to ArrLength(aArr)-1 {
+				//知道y=a*x+b之后，绘制直线
+				x1 = -5;
+				y1 = aArr[i]*x1 + bArr[i];
+				x2 = lastMax - oldMin;
+				y2 = aArr[i]*x2 + bArr[i];
+				//Commentary("x1,y1,x2,y2:("+Text(x1)+","+Text(y1)+") ("+Text(x2)+","+Text(y2)+")");
+				PartLine("valid", CurrentBar-oldMin-x1, y1, CurrentBar- oldMin - x2, y2);
+				//ShowArr("aArr", aArr);
+				//ShowArr("bArr", bArr);
+				if (aArr[i]*x + bArr[i] > y) {
+					isOutsideRiseChannel = True;
+					break;
+				}
+				Commentary("isOutsideRiseChannel:"+Text(isOutsideRiseChannel) + " slope:"+Text(slope) + " lastEnter:"+Text(lastEnter) + " CurrentBar:"+Text(CurrentBar));
+			}
+		}
+		
+		Bool isOutsideFallChannel = False;
+		//开始上涨啦
+		if (lastMax == oldMax && CurrentBar - lastMin >= 2) {
+			//从最高点开始偏移3个Bar，也就是一笔，判断是否要动单
+			NumericArray hArr;
+			slope = (highArr[CurrentBar-oldMax]-highArr[CurrentBar-lastMin])/(oldMax - lastMin);
+			NumericArray aArr;
+			NumericArray bArr;
+			for i=oldMax to lastMin {
+				ArrAdd(hArr, highArr[CurrentBar-i]);
+			} 
+			//ShowArr("hArr", hArr);
+			OutsideFallChannel(hArr, slope, aArr, bArr);
+			Numeric x = CurrentBar - 1 - oldMax;
+			Numeric y = closeArr[1];
+			//y = y1 +[(y2-y1)/(x2-x1)]*(x-x1)
+			for i=0 to ArrLength(aArr)-1 {
+				//知道y=a*x+b之后，绘制直线
+				x1 = -5;
+				y1 = aArr[i]*x1 + bArr[i];
+				x2 = lastMin - oldMax;
+				y2 = aArr[i]*x2 + bArr[i];
+				//PartLine("valid", CurrentBar-oldMax-x1, y1, CurrentBar-oldMax-x2, y2);
+				Commentary("3 isOutsideFallChannel:"+Text(isOutsideFallChannel) + " slope:"+Text(slope) + " lastEnter:"+Text(lastEnter));
+					
+				if (aArr[i]*x + bArr[i] < y) {
+					isOutsideFallChannel = True;
+					break;
+				}
+			}
+		}
+		//return;
+		
+		
+		
+		
+		
+		// 上涨完成，开始下跌了
+		if (isOutsideRiseChannel && slope > 0) {
+			SetShapeStyle("rise",2, 0, 1);
+			//------------------------------------------------------------
+			// 如果有单
+			if (lastEnter > 0 || lastEnter >= Close[1]) {
+				//先平仓
+				BuyToCover(Lots);
+				profit += Open - lastEnter - 2;
+				PartLine("trade2", CurrentBar - lastPosition, highArr[CurrentBar-lastPosition], 0, Low, Yellow, 3);
+				Commentary("Sell平仓 CurrentBar:" + Text(CurrentBar) + " profit:" + Text(profit));
+				
+				//重置价格
+				lastEnter = 0;
+			} else if (lastEnter > 0) {
+				Commentary("error with buy, CurrentBar:" + Text(CurrentBar));
+			}
+			
+			// 如果是顺势下跌
+			if (isOutsideRiseChannel) {
+				// 判断是否做空
+				if (lowArr[CurrentBar-lastMin] <= avg150 && lastEnter == 0) {
+					//再开仓
+					SellShort(Lots,Open);
+					lastEnter = Open*(-1);
+					lastPosition = CurrentBar;
+					Commentary("SellShort开仓 CurrentBar:" + Text(CurrentBar) + " profit:" + Text(profit));
+				}
+			}
+			
+			SetGlobalVar(10, lastEnter);
+			SetGlobalVar(11, profit);
+			SetGlobalVar(12, lastPosition);
+		}
+		// 下跌完成，开始上涨
+		if (isOutsideFallChannel && slope < 0) {
+			SetShapeStyle("rise",2, 0, 1);
+			//------------------------------------------------------------
+			if (lastEnter < 0 || (-1)*lastEnter <= Close[1]) {
+				//先平仓
+				BuyToCover(Lots);
+				profit += (-1)*lastEnter - Open - 2;
+				Commentary("BuyToCover平空单 CurrentBar:" + Text(CurrentBar) + " profit:" + Text(profit));
+				PartLine("trade2", CurrentBar - lastPosition, lowArr[CurrentBar-lastPosition], 0, High, Yellow, 3);
+				
+				//重置价格
+				lastEnter = 0;
+			} else if (lastEnter < 0) {
+				Commentary("error with sell, CurrentBar:" + Text(CurrentBar));
+			}
+			
+			if (isOutsideFallChannel) {
+				// 判断是否做空: 空仓下，前一个低点要高于150均线
+				if (highArr[CurrentBar-lastMin] >= avg150 && lastEnter == 0) {
+					//再开仓
+					Buy(Lots,Open);
+					lastEnter = Open;
+					lastPosition = CurrentBar;
+					Commentary("Buy做多 CurrentBar:" + Text(CurrentBar) + " profit:" + Text(profit));
+				}
+			}
+				
+			SetGlobalVar(10, lastEnter);
+			SetGlobalVar(11, profit);
+			SetGlobalVar(12, lastPosition);
+		}
+		//Plotnumeric("lowArr[CurrentBar-lastMin]",lowArr[CurrentBar - lastMin]);
+		//Plotnumeric("lowArr[CurrentBar]",lowArr[0]);
+		//Plotnumeric("avg10[CurrentBar]",avg10[0]);
+		
+		// 打印记录的索引值
+		//Plotnumeric("oldMax",oldMax);
+		//Plotnumeric("oldMin",oldMin);
+		//SetGlobalLoop0(CurrentBar);
+		//PlotNumeric("oldMin", tmp);
+		
+		if (oldMin > oldMax &&lastMax > oldMax) {
+			PartLine("minMax2", CurrentBar-oldMax, highArr[CurrentBar-oldMax], CurrentBar-oldMin, lowArr[CurrentBar-oldMin]);
+		}
+		if (oldMax >oldMin && lastMin > oldMin){
+			PartLine("minMax2", CurrentBar-oldMin, lowArr[CurrentBar-oldMin], CurrentBar-oldMax, highArr[CurrentBar-oldMax]);
+		}
+		
+		if (lastMax == oldMax && lastMin == oldMin
+				) {
+				if ( lastMin > lastMax ) {
+					PartLine("tail",CurrentBar-oldMax, highArr[CurrentBar-oldMax], CurrentBar-lastMin, lowArr[CurrentBar-lastMin]);	
+				} else {
+					PartLine("tail", CurrentBar-oldMin, lowArr[CurrentBar-oldMin], CurrentBar-lastMax, highArr[CurrentBar-lastMax]);
+				}
+		}
+		
+		
+		
+End
+

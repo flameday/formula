@@ -1,0 +1,25 @@
+//------------------------------------------------------------------------
+// 简称:MICD
+// 名称:异同离差动力指数
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer N(3);
+	Integer N1(10);
+	Integer N2(20);
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	Numeric MI = C-REF(C,1);
+	Numeric AMI = SMA(MI,N,1);
+	Numeric DIF = MA(REF(AMI,1),N1)-MA(REF(AMI,1),N2);
+	Numeric MICD = SMA(DIF,10,1);
+	
+	PlotNumeric("DIF",DIF);
+	PlotNumeric("MICD",MICD);
+End

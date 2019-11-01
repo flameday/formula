@@ -1,0 +1,48 @@
+//------------------------------------------------------------------------
+// 简称:CP
+// 名称:分时均线
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+	NumericSeries fSum(0);
+	NumericSeries fSumVol(0);
+	NumericSeries ret(0);
+Begin		
+	//策略执行区
+	if(TradeDate != TradeDate[1])
+	{
+		fSum=Close*Vol;
+		fSumVol=Vol;
+				
+	}
+	Else
+	{
+		fSum=fSum[1]+Close*Vol;
+		fSumVol=fSumVol[1]+Vol;		
+	}
+		
+	if(fSumVol>0)
+	{
+		ret = fSum/fSumVol;		
+	}
+	Else
+	{
+		ret = Close;
+	}
+	
+	if(TradeDate == TradeDate[1])
+	{
+		PartLine("Avg",0,ret,1,ret[1]);
+	}
+	Else
+	{
+		PartLine("Avg",0,ret,0,ret);	
+	}
+	
+End

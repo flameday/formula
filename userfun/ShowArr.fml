@@ -1,0 +1,22 @@
+//--------------------------------------------------------------
+// 简称: ShowArr
+// 名称: 打印Array
+// 类型: 用户函数
+// 输出: Numeric
+//--------------------------------------------------------------
+Params
+	String desc;
+	NumericArray arr;
+Vars
+	Numeric Num;
+Begin
+	Integer size = ArrLength(arr);
+	Integer i;
+	String s = desc +" size(" +Text(size) + "):";
+	for i = 0 to size-1 {
+		s += "  " +Text(i)+ ";";
+		s += Text(arr[i]);
+	}
+	Commentary(s);
+	Return 0;
+End

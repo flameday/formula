@@ -1,0 +1,27 @@
+//--------------------------------------------------------------
+// 简称: test
+// 名称: test
+// 类型: 用户函数
+// 输出: Numeric
+//--------------------------------------------------------------
+Params
+	NumericArray leftArr;
+	NumericArray rightArr;
+Vars
+	Numeric Num;
+	Integer i;
+Begin
+	ShowArr("leftArr", leftArr);
+	ShowArr("rightArr", rightArr);
+	Numeric size = ArrLength(rightArr);
+	if (size * size <> ArrLength(leftArr)) {
+		Commentary("error: size * size <> ArrLength(leftArr");
+		return 0;
+	}
+	
+	//Gauss Jordan way
+	for i = 0 to ArrLength(leftArr) {
+		Num += leftArr[i];
+	}
+	Return Num;
+End

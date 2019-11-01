@@ -1,0 +1,26 @@
+//------------------------------------------------------------------------
+// 简称:RSI
+// 名称:RSI
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer N1(6);
+	Integer N2(12);
+	Integer N3(24);
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	Numeric LC = REF(CLOSE,1);
+	Numeric RSI1 =SMA(MAX(CLOSE-LC,0),N1,1)/SMA(ABS(CLOSE-LC),N1,1)*100;
+	Numeric RSI2 =SMA(MAX(CLOSE-LC,0),N2,1)/SMA(ABS(CLOSE-LC),N2,1)*100;
+	Numeric RSI3 =SMA(MAX(CLOSE-LC,0),N3,1)/SMA(ABS(CLOSE-LC),N3,1)*100;
+	
+	PlotNumeric("RSI1",RSI1);
+	PlotNumeric("RSI2",RSI2);
+	PlotNumeric("RSI3",RSI3);
+End

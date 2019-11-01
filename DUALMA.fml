@@ -1,0 +1,55 @@
+//------------------------------------------------------------------------
+// 简称:DualMA
+// 名称:双均线交易系统
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params
+	Numeric FastLength(3);  //短周期
+	Numeric SlowLength(10);  //长周期
+		
+	Numeric StopPoint(30);  //止损点
+	Numeric WinPoint(100);   //止赢点
+	
+	Numeric FlostStopStartPoint(50);   //浮动止损启动条件
+	Numeric FlostStopPoint(20);   //浮动止损点
+	
+	Numeric TradeUint(5); //每次交易手数
+	
+Vars
+	NumericSeries AvgValue1; 
+	NumericSeries AvgValue2;
+	BoolSeries bCrossOver(false);
+	BoolSeries bCrossDn(False);
+Begin
+	AvgValue1 = AverageFC(CLOSE,FastLength);
+	AvgValue2 = AverageFC(CLOSE,SlowLength);
+	PlotNumeric("MA1",AvgValue1);
+	PlotNumeric("MA2",AvgValue2);
+	
+	
+		
+	bCrossOver = CrossOver(AvgValue1,AvgValue2);
+	bCrossDn   = CrossUnder(AvgValue1,AvgValue2);
+	
+	//均线交叉时开仓
+	if(bCrossOver[1])
+	{
+		if(MarketPosition != 1)
+			Buy(TradeUint,Open);
+		
+	}
+	Else if(bCrossDn[1])
+	{
+		if(MarketPosition != -1)
+			SellShort(TradeUint,Open);
+	}
+	
+	//止盈止损
+	SetWinPoint(WinPoint);
+	//止损点
+	SetStopPoint(StopPoint);
+	//浮动止损
+	SetFloatStopPoint(FlostStopStartPoint,FlostStopPoint);
+	
+End

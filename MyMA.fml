@@ -1,0 +1,80 @@
+//------------------------------------------------------------------------
+// 简称:MyMA
+// 名称:MyMA
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer P1(60);
+	Integer P2(120);
+	Integer TickRange(1);
+	
+Vars		
+	//局部变量定义
+	NumericSeries MA1;
+	NumericSeries MA2;
+GlobalVars
+	Bool bLastShow(True);
+	Integer lastAlertBar(-1);
+	BoolSeries sAlert;
+Begin	
+	//求4个周期的移动平均	
+	MA1 = AverageFC(Close,P1);
+	MA2 = AverageFC(Close,P2);
+	UnPlotIcon(0);
+	
+	//绘指标线
+	PlotNumeric("MA1",MA1,Red);
+	PlotNumeric("MA2",MA2,Green);
+	
+	double upC = MA1 + (TickRange+0.1)*MinMove*PriceScale;
+	double dnC = MA1 - (TickRange+0.1)*MinMove*PriceScale;
+	
+	if((H>dnC && L<=upC) || (L<upC && H>=dnC))
+	{
+		if( !sAlert[1] && !sAlert[2]&& !sAlert[3]&& !sAlert[4])
+		{
+			if(BarStatus==2 &&  lastAlertBar !=  CurrentBar)
+			{
+				Sound(118);
+				
+			}
+			
+			PlotIcon(MA1,7);
+		}
+		
+		lastAlertBar =CurrentBar;
+		sAlert = True;
+		Print("OK");
+	}
+	Else
+	{
+		sAlert = False;
+	}
+	
+	Bool bCurShow = SecondFromDateTime(SystemDateTime) % 2 == 0;
+	
+	if(!bCurShow && bLastShow)
+	{
+		for(int i=0;i<=CurrentBar;i++)
+		{
+			UnPlotPartLine("F",i);
+		}
+	}
+	else if(bCurShow)
+	{
+		if(!bLastShow)
+		{
+			for(int i=0;i<=CurrentBar;i++)
+			{
+				PartLine("F",i,MA1[i],i+1,MA1[i+1],Red,8);
+			}
+		}
+		Else
+		{
+			PartLine("F",0,MA1[0],1,MA1[1],Red,8);
+		}
+	}
+	bLastShow = bCurShow;
+End

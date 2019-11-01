@@ -1,0 +1,28 @@
+//------------------------------------------------------------------------
+// 简称:EMA
+// 名称:指数平滑移动平均线
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer P1(5);
+	Integer P2(10);
+	Integer P3(20);
+	Integer P4(60);
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	Numeric MA1 = EMA(CLOSE,P1);
+	Numeric MA2 = EMA(CLOSE,P2);
+	Numeric MA3 = EMA(CLOSE,P3);
+	Numeric MA4 = EMA(CLOSE,P4);
+	
+	PlotNumeric("MA1",MA1);
+	PlotNumeric("MA2",MA2);
+	PlotNumeric("MA3",MA3);
+	PlotNumeric("MA4",MA4);
+End

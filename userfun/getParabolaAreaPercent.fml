@@ -1,0 +1,62 @@
+//--------------------------------------------------------------
+// 简称: getParabolaAreaPercent
+// 名称: getParabolaAreaPercent
+// 类型: 用户函数
+// 输出: Numeric
+//--------------------------------------------------------------
+Params
+	NumericArray paramsArr;
+	Integer pos(0);
+Vars
+Begin
+	//<- 0
+	Numeric Sum = 0;
+	Numeric partSum = 0;
+	Integer i;
+	Numeric y = 0;
+	Integer x;
+	Numeric rate;
+	
+	// 从中点开始算起: x = 1/2 * (-b/a)
+	Integer center = -1* paramsArr[1]/paramsArr[2]/2.0;
+	ShowArr("==========paramsArr=", paramsArr);
+	Commentary("==========center="+Text(center));
+	//Red 
+	if (paramsArr[2] < 0) {
+		// <- 0
+		for i= 0 to 1000 {
+			x = center - i;
+			y = paramsArr[0] + x*paramsArr[1] + x*x*paramsArr[2];
+			
+			if (y <= 0) {
+				break;
+			}
+			Sum += y;
+			if (x <= pos) {
+				partSum += y;
+			}
+			//Commentary("[" + Text(x) +"] Sum="+Text(Sum));
+			//Commentary("[" + Text(x) +"] partSum="+Text(partSum));
+			//Commentary("[" + Text(x) +"] rate="+Text(partSum/Sum));
+		}
+		for i=0 to 1000 {
+			x = center + i;
+			y = paramsArr[0] + x*paramsArr[1] + x*x*paramsArr[2];
+			if (y < 0) {
+				break;
+			}
+			Sum += y;
+			if (x <= pos) {
+				partSum += y;
+			}
+		}
+	}
+	rate = partSum/Sum;
+	Commentary("[" + Text(x) +"] Sum="+Text(Sum));
+	Commentary("[" + Text(x) +"] partSum="+Text(partSum));
+	Commentary("[" + Text(x) +"] rate="+Text(partSum/Sum));
+	Commentary("getParabolaAreaPercent rate:"+Text(rate));
+	
+	//0 ->
+	Return rate;
+End

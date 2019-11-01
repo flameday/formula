@@ -1,0 +1,43 @@
+//------------------------------------------------------------------------
+// 简称:Donchian
+// 名称:唐氏通道交易系统
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer M(5);
+	Integer N(5);
+	Integer MaxPositionNum(3);		//最大开仓数
+	Numeric StopPoint(30);		//止损点
+	Numeric WinPoint(100);		//止赢点
+	Numeric FloatStopStart(50);	//浮动止损开始点
+	Numeric FloatStopPoint(20);	//浮动止损点
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+	NumericSeries HHV;
+	NumericSeries LLV;
+Begin		
+	HHV = HighestFC(High,M);  //求M周期最高
+	LLV = LowestFC(Low,N);	  //求N周期最低
+	
+	PlotNumeric("LAST_HHV",HHV[1]);
+	PlotNumeric("LAST_LLV",LLV[1]);
+	if(High > HHV[1])
+	{
+		if(CurrentContracts<MaxPositionNum || MarketPosition<0)
+			Buy(1,High);
+	}
+	Else if(Low<LLV[1])
+	{
+		IF(ABS(CurrentContracts)<MaxPositionNum || MarketPosition>0)
+			SellShort(1,Low);
+	}
+	
+	SetStopPoint(StopPoint);	//止损
+	SetWinPoint(WinPoint);		//止赢
+	SetFloatStopPoint(FloatStopStart,FloatStopPoint);	//浮动止损
+
+End

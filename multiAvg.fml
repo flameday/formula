@@ -1,0 +1,26 @@
+Params
+        Numeric Length(10);
+Vars
+        Numeric MyOpen;
+        Numeric MyHigh;
+        Numeric MyLow;
+        Numeric MyClose;
+        NumericSeries MyAvgPrice;
+       
+        Numeric SumValue(0);
+        Numeric Value1;
+        Numeric i;
+Begin
+        MyOpen = (Open,"min",5,"Open");
+        MyHigh = DataConvert(High,"min",5,"High");
+        MyLow = DataConvert(Low,"min",5,"Low");
+        MyClose = DataConvert(Close,"min",5,"Close");
+        MyAvgPrice = (MyOpen+MyHigh+MyLow+MyClose)*0.25;
+       
+        For i = Length-1 DownTo 0
+        {
+                Value1 = TransMinsData(MyAvgPrice,5,i);
+                SumValue = SumValue + Value1;
+        }
+        PlotNumeric("AvgPrice",SumValue/Length);
+End

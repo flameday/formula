@@ -1,0 +1,31 @@
+//------------------------------------------------------------------------
+// 简称:K120
+// 名称:黄昏之星
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	Numeric tick = MinMove * PriceScale;
+	
+	Bool Con1 = Close[2] - Open[2] > 10 * tick;
+	Bool Con2 =  ABS(Close[1] - Open[1])<= 2 * tick  And Open[1]>=High[2]+2*tick && High[1]-Low[1]>=4*tick;
+	Bool Con3 = Open - Close  > 8 * tick && Close<=Open[2]+3*tick;
+	
+	if(Con1 && Con2 && Con3)
+	{
+		ColorBar(ColorDown);
+		ColorBar(ColorUp,1);
+		ColorBar(ColorUp,2);
+	}
+	Else
+	{
+		ColorBar(RGB(160,160,160));
+	}
+End

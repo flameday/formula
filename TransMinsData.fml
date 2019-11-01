@@ -1,0 +1,40 @@
+Params
+        NumericSeries Price(1);
+        Numeric nMinSet(5);
+        Numeric MinsAgo(2);
+Vars
+        NumericSeries barCnt;
+        NumericSeries MinData;
+        Numeric i;
+        Numeric j;
+        Numeric nIndex(0);
+Begin
+        If(IntPart(Minute/nMinSet)==0)
+        {
+                barCnt = 1;
+        }Else
+        {
+                barCnt = barCnt[1] + 1;
+        }
+        MinData = Price;
+               
+        If(MinsAgo == 0)
+        {
+                return MinData;
+        }Else
+        {
+                For i = 1 To MinsAgo
+                {
+                        If( i == 1)
+                        {       
+                                j = 0;
+                        }Else
+                        {
+                                j = j + BarCnt[j];                               
+                        }
+                        If (j > CurrentBar ) Return InvalidNumeric;
+                        nIndex = nIndex + BarCnt[j];
+                }
+                Return MinData[nIndex];
+        }
+End

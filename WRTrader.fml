@@ -1,0 +1,64 @@
+//------------------------------------------------------------------------
+// 简称:aF
+// 名称:aF
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params
+	Integer N(14);  	
+	Integer SellLine(80);         //多仓止损线
+	Integer BuyToCoverLine(20);    //空仓止损线
+	Integer OpenLine(50);		  //开仓线
+	Numeric LeaveTime(0.145900);  //当日平仓时间
+Vars
+	Numeric WR(0);   //威廉指标
+	Numeric HHV(0);
+	Numeric LLV(0);
+Begin		
+	
+	HHV = HighestFC(High,N);                 //N周期最高价
+	LLV = LowestFC(Low,N);                   //N周期最低价
+	
+	WR = (hhv - Close) / (hhv - llv) * 100;
+
+	PlotNumeric("MID_LINE",50);
+	PlotNumeric("UP_LINE",BuyToCoverLine);
+	PlotNumeric("DN_LINE",SellLine);
+
+	PlotNumeric("WR_LINE",WR);
+	
+	Bool bCrossOver  = CrossOver(WR,50);  //威廉线是否上穿50
+	Bool bCrossUnder = CrossUnder(WR,50); //威廉线是否下穿50
+	
+	if(MarketPosition == 0 && CurrentTime<LeaveTime-0.0010)
+	{
+		//当前没有持仓，并且离闭市平仓时间还至少有10分钟，判断是否开仓
+		if(bCrossOver )
+		{
+			Buy(1,C);          //开多仓
+			PlotText(WR,"开多");
+		}
+		Else if(bCrossUnder)
+		{
+			SellShort(1,C);		//开空仓
+			PlotText(WR,"开空");
+		}
+	}
+	Else
+	{
+			
+		//威廉线超过80，平多仓
+		If(MarketPosition>0 && WR >= SellLine)
+		{
+			Sell(0,C);	
+			PlotText(WR,"平多");
+		}
+		
+		//威廉线低于20，平空仓
+		If(MarketPosition<0 && WR<= BuyToCoverLine)
+		{
+			BuyToCover(0,C);	
+			PlotText(WR,"平空");
+		}
+	} 
+End

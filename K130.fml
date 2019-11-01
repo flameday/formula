@@ -1,0 +1,20 @@
+//------------------------------------------------------------------------
+// 简称:K130
+// 名称:十字星
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	BOOL condition = (CLOSE==OPEN) AND HIGH<>LOW AND HIGH>CLOSE AND LOW<CLOSE;
+	if(condition)
+		ColorBar(ColorUp());
+	else
+		ColorBar(RGB(160,160,160));
+End

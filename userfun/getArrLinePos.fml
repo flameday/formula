@@ -1,0 +1,21 @@
+//--------------------------------------------------------------
+// 简称: getArrLinePos
+// 名称: getArrLinePos
+// 类型: 用户函数
+// 输出: Numeric
+//--------------------------------------------------------------
+Params
+	NumericArray arr;
+	Integer row;
+	Integer col;
+Vars
+	Numeric sum;
+Begin
+	Integer length = ArrLength(arr);
+	Integer size = Sqrt(length);
+	Integer res = row * size + col;
+	
+	//Commentary("size= "+Text(size) +" (i,j)=("+Text(row)+","+Text(col)+") res:"+Text(res));
+	
+	return res;
+End

@@ -1,0 +1,57 @@
+//------------------------------------------------------------------------
+// 简称: WeekXAverage
+// 名称: 日线转化周线的指数平均
+// 类别: 用户函数
+// 类型: 用户函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+        NumericSeries Price(10);
+        Numeric Length(10);
+Vars
+        NumericSeries WeeksNo;
+        NumericSeries WeekDays;
+        BoolSeries FirstWeek(True);
+        Numeric sFcactor;
+        NumericSeries XAvgValue;
+Begin
+        If(CurrentBar == 0)
+        {
+                FirstWeek = True;
+        }Else
+        {
+                FirstWeek = FirstWeek[1];
+                If(FirstWeek &&  Weekday==1)
+                {
+                        FirstWeek = False;
+                }
+        }
+       
+        WeeksNo = IntPart(DateDiff(19700105,Date)/7);
+        If(WeeksNo!=WeeksNo[1])
+        {
+                WeekDays = 1;
+        }Else
+        {
+                WeekDays = WeekDays[1] + 1;
+        }
+
+        sFcactor = 2 / ( Length + 1 );
+        if (FirstWeek)
+        {
+                XAvgValue = Price;
+        }else
+        {
+                XAvgValue = XAvgValue[WeekDays] + sFcactor * ( Price - XAvgValue[WeekDays] ) ;
+        }       
+    Return XAvgValue;
+End
+
+//------------------------------------------------------------------------
+// 编译版本        GS2004.06.12
+// 用户版本        2008/04/08 20:23
+// 版权所有        nopain
+// 更改声明        TradeBlazer Software保留对TradeBlazer平台
+//                        每一版本的TrabeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

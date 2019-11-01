@@ -1,0 +1,116 @@
+//--------------------------------------------------------------
+// 简称: BarChannel
+// 名称: 画K线通道
+// 类型: 用户函数
+// 输出: Numeric
+//--------------------------------------------------------------
+Params
+	NumericArrayRef highArr;
+	Numeric slope;
+	NumericArrayRef aArr;
+	NumericArrayRef bArr;
+Vars
+	Integer i;
+	Integer k;
+	Integer m;
+Begin
+	// 第一步，先找所有的边界线
+	// 这里严格的说，应该遍历所有点，但是快速处理，只取顶底分型
+	// 高点
+	NumericArray yArray;
+	NumericArray xArray;
+	Integer size = ArrLength(highArr);
+	Commentary("highArr size:"+Text(size));
+	for i = 0 to size-1 {
+		if (i == 0 && size > 1) {
+			if (highArr[i] <= highArr[i+1]) {
+				ArrAdd(xArray, i);
+				ArrAdd(yArray, highArr[i]);
+			}
+		} else if (i == size-1 && size > 1) {
+			if (highArr[i] <= highArr[i-1]) {
+				ArrAdd(xArray, i);
+				ArrAdd(yArray, highArr[i]);
+			}
+		} else if (highArr[i] <= highArr[i-1] && highArr[i] <= highArr[i+1]) {
+			ArrAdd(xArray, i);
+			ArrAdd(yArray, highArr[i]);
+		}
+	}
+	ShowArr("xArray", xArray);
+	ShowArr("yArray", yArray);
+	
+	// 第二步，选择合适的边界线
+	// 采用通用方案，遍历
+	size = ArrLength(xArray);
+	for i = 0 to size-2 {
+		for k = i+1 to size-1 {
+			// 这里获得所有的直线，判断是否都大于等于0：算法复杂度是O（n*n*n）
+			// y = y1 +[(y2-y1)/(x2-x1)]*(x-x1)
+			Integer x1 = xArray[i];
+			Numeric y1 = yArray[i];
+			
+			Integer x2 = xArray[k];
+			Numeric y2 = yArray[k];
+			// 限制斜率一致，避免奇葩结果
+			if ((y2-y1)/(x2-x1)*slope <= 0) {
+				continue;
+			}
+			
+			Bool flag = True;
+			// 两点之外的所有其他点，都必须在直线之下
+			for m = 0 to size - 1 {
+				if (m == i || m == k) {
+					continue;
+				}
+				Integer x =  xArray[m];
+				Numeric y = y1 + (x - x1)*(y2-y1)/(x2-x1);
+				Numeric diff = yArray[m] - y;
+				//Commentary("x,y diff=(" + Text(x) +","+Text(y) + ")," + Text(diff));
+				
+				// 向上倾斜
+				if (slope > 0) {
+					//上涨如果还低，就不合法了
+					if (diff < 0) {
+						//Commentary("-----ignore high x/y pair");
+						flag = False;
+						break;
+					}
+				}
+				if (slope < 0) {
+					if (diff > 0) {
+						flag = False;
+						break;
+					}
+				}
+			}// for m = 0
+			
+			if (flag) {
+				Commentary("allow x,y:("+Text(xArray[i])+","+Text(yArray[i])+"), (" +Text(xArray[k])+","+Text(yArray[k])+")");
+				//获得 a b，并加入到数组
+				Numeric a = (y2-y1)/(x2-x1);
+				Numeric b = y1 - a*x1;
+				
+				if (a == 0) {
+					Continue;
+				}
+				
+				size = ArrLength(aArr);
+				Bool isExists = False;
+				for i=0 to size-1 {
+					if (aArr[i] == a && bArr[i] == b) {
+						isExists = True;
+						break;
+					}
+				}
+				if (! isExists) {
+					ArrAdd(aArr, a);
+					ArrAdd(bArr, b);
+				}
+			}
+		}// for k = i+1 to size-1
+	}// for i = 0 to size-2
+	ShowArr("aArr", aArr);
+	ShowArr("bArr", bArr);
+	Return 0;
+End

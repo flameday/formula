@@ -1,0 +1,36 @@
+//------------------------------------------------------------------------
+// 简称: WeekMACD
+// 名称: 周线MACD
+// 类别: 技术指标
+// 类型: 其它类
+// 输出:
+//------------------------------------------------------------------------
+
+Params
+        Numeric FastLength(12);
+        Numeric SlowLength(26);
+        Numeric MACDLength(9);
+Vars
+        NumericSeries MACDValue;
+        Numeric AvgMACD;
+        Numeric MACDDiff;
+Begin
+        MACDValue = WeekXAverage( Close, FastLength ) - WeekXAverage( Close, SlowLength ) ;       
+        AvgMACD = WeekXAverage(MACDValue,MACDLength);
+        MACDDiff = MACDValue - AvgMACD;
+        PlotNumeric("MACD",MACDValue);
+        PlotNumeric("MACDAvg",AvgMACD);
+        If (MACDDiff >= 0)       
+                PlotNumeric("MACDDiff",MACDDiff,Red);
+        Else
+                PlotNumeric("MACDDiff",MACDDiff,Green);
+        PlotNumeric("零线",0);          
+End
+
+//------------------------------------------------------------------------
+// 编译版本        GS2004.06.12
+// 用户版本        2008/04/08 20:20
+// 版权所有        nopain
+// 更改声明        TradeBlazer Software保留对TradeBlazer平台
+//                        每一版本的TrabeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

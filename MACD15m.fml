@@ -1,0 +1,92 @@
+//------------------------------------------------------------------------
+// 简称:MM
+// 名称:MM
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params
+        Numeric TimeFrame(15);                // 目标时间周期参数，参数说明参见MtBar
+        Numeric BarsBack(1);                 // 目标时间周期BAR偏移参数，说明见MtBar函数
+        Numeric FastLength(12);
+        Numeric SlowLength(26);
+        Numeric MACDLength(9);
+    	Numeric Lots(1);
+Vars
+        NumericSeries MACDValue;
+        NumericSeries AvgMACD;
+        NumericSeries MACDDiff;
+        Numeric ooMACDValue;
+        Numeric ooAvgMACD;
+        Numeric PreBar;
+GlobalVars
+		Integer lastCrossPos(-1);		
+Begin
+        PreBar = MtMACD(TimeFrame,BarsBack,FastLength,SlowLength,MACDLength,ooMACDValue,ooAvgMACD);
+        MACDVAlue = ooMACDValue;
+        AvgMACD = ooAvgMACD;
+        MACDDiff = MACDValue - AvgMACD;
+
+        //PlotNumeric("MACD",MACDValue);
+        //PlotNumeric("MACDAvg",AvgMACD);
+        PlotNumeric("DIFF",MACDValue);
+        PlotNumeric("DEA",AvgMACD);
+		SetShapeStyle("DEA",1, 2, 1);
+        If (MACDDiff >= 0) {
+                PlotNumeric("MACDDiff",MACDDiff,Red);
+				//PlotStickLine("MACDDiff",0, MACDDiff, RED);
+				PlotStickLine("MACD15m",0, MACDDiff, RED);
+		}   
+        Else{
+                PlotNumeric("MACDDiff",MACDDiff,Green);
+				//PlotStickLine("MACDDiff",0, MACDDiff, Green);
+				PlotStickLine("MACD15m",0, MACDDiff, Green);
+		}
+        PlotNumeric("零线",0);
+		//Commentary("CurrentBar:"+Text(CurrentBar));
+
+/*        If (MacdDiff[PreBar]<0 and MacdDiff>0)
+        {
+                Buy(Lots,Open);
+        }
+        If (MacdDiff[PreBar]>0 and MacdDiff<0)
+        {
+                SellShort(Lots,Open);
+        }*/
+		Integer i;
+		Numeric y;
+		Bool flag = IsCross(MACDDiff);
+		if (flag) {
+			lastCrossPos = CurrentBar;
+		} else {
+			if (CurrentBar > 1000000) {
+				//if (CurrentBar - lastCrossPos > 2 && (CurrentBar == 2881 || CurrentBar == 2888 ||CurrentBar == 2895 ||CurrentBar == 2902)){
+				if (CurrentBar - lastCrossPos){
+					Commentary("lastCrossPos when "+Text(lastCrossPos) +" ---> " +Text(CurrentBar));
+					NumericArray xArr;
+					NumericArray yArr;
+					NumericArray paramsArr;
+					NumericArray dstArr;
+					for i=0 to CurrentBar-lastCrossPos-1 {
+						y = MACDDiff[CurrentBar - lastCrossPos - i]; 
+						ArrAdd(xArr, i);
+						ArrAdd(yArr, y);
+					}
+					ShowArr("xArr:", xArr);
+					ShowArr("yArr:", yArr);
+					getFitParabola(xArr, yArr, paramsArr);
+					getArrParabolaValue(xArr, paramsArr, dstArr);
+					ShowArr("paramsArr:", paramsArr);
+					ShowArr("dstArr:", yArr);
+					for i=0 to CurrentBar-lastCrossPos-1-1 {
+						PartLine("parabola", CurrentBar - lastCrossPos - i, dstArr[i],
+											 CurrentBar - lastCrossPos - i - 1, dstArr[i+1]);
+					}
+					
+					Numeric rate = getParabolaAreaPercent(paramsArr, CurrentBar - lastCrossPos);
+					PlotNumeric("area-rate", rate*5, Yellow);
+				}
+				Commentary("===================");
+			}
+		}
+		
+End

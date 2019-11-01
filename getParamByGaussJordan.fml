@@ -1,0 +1,109 @@
+//--------------------------------------------------------------
+// 简称: getParamByGaussJordan
+// 名称: getParamByGaussJordan
+// 类型: 用户函数
+// 输出: Numeric
+//--------------------------------------------------------------
+Params
+	NumericArray leftArr;
+	NumericArray rightArr;
+	NumericArrayRef paramArr;
+Vars
+	
+Begin
+		//高斯约旦方案
+		//1,初始化
+		NumericArray dstArr;
+		Integer i;
+		Integer j;
+		Integer m;
+		Integer size;
+		size = ArrLength(rightArr);
+		
+		for i=0 to ArrLength(leftArr) - 1 {
+			if (i == 0 || i == size+1 || i==2*(size+1) ||i==3*(size+1)) {
+				ArrAdd(dstArr, 1);
+			} else {
+				ArrAdd(dstArr, 0);
+			}
+		}
+		//2,遍历求解
+		// j 列数 i 行数
+		Numeric tmp;
+		Numeric val;
+		Numeric rate;
+		size = ArrLength(rightArr);
+		ShowArr("leftArr", leftArr);
+		ShowArr("dstArr", dstArr);
+		//第一轮
+		for j=0 to size - 2 {
+			val = leftArr[getArrLinePos(leftArr, j, j)];
+			for i=j+1 to size - 1 {
+				//[i][j]
+				tmp = leftArr[getArrLinePos(leftArr, i, j)];
+				if (tmp != 0) {
+					rate = tmp/val;
+					Commentary("val, tmp, rate="+Text(val)+","+Text(tmp)+","+Text(rate));
+					for m=0 to size-1 {
+						leftArr[getArrLinePos(leftArr, i, m)] -= rate * leftArr[getArrLinePos(leftArr, j, m)];
+						dstArr[getArrLinePos(leftArr, i, m)] -= rate * dstArr[getArrLinePos(leftArr, j, m)];
+					}
+				}
+			}
+			ShowArr("1 leftArr", leftArr);
+			ShowArr("1 dstArr", dstArr);
+			Commentary("----------------------------");
+		}
+		//第二轮
+		Integer tmp_i;
+		Integer tmp_j;
+		for j=0 to size - 2 {
+			tmp_j = size-1-j;
+			val = leftArr[getArrLinePos(leftArr, tmp_j, tmp_j)];
+			for i=j+1 to size - 1 {
+				tmp_i = size-1-i;
+				tmp = leftArr[getArrLinePos(leftArr, tmp_i, tmp_j)];
+				if (tmp != 0) {
+					rate = tmp/val;
+					for m = 0 to size-1 {
+						leftArr[getArrLinePos(leftArr, tmp_i, m)] -= rate * leftArr[getArrLinePos(leftArr, tmp_j, m)];
+						dstArr[getArrLinePos(leftArr, tmp_i, m)] -= rate * dstArr[getArrLinePos(leftArr, tmp_j, m)];
+					}
+				}
+			}
+			ShowArr("2 leftArr", leftArr);
+			ShowArr("2 dstArr", dstArr);
+			Commentary("----------------------------");
+		}
+		//第三轮全部设置为1
+		//第一轮
+		for j=0 to size - 1 {
+			val = leftArr[getArrLinePos(leftArr, j, j)];
+			if (val != 1) {
+				rate = val;
+				for m=0 to size-1 {
+					leftArr[getArrLinePos(leftArr, j, m)] = leftArr[getArrLinePos(leftArr, j, m)]/rate;
+					dstArr[getArrLinePos(leftArr, j, m)] = dstArr[getArrLinePos(leftArr, j, m)]/rate;
+				}
+			}
+			ShowArr("2 leftArr", leftArr);
+			ShowArr("2 dstArr", dstArr);
+		}
+		//第四轮，求值
+		for i=0 to size-1 {
+			ArrAdd(paramArr, 0);
+		}
+		ShowArr("rightArr", rightArr);
+		for i=0 to size-1 {
+			Numeric param = 0;
+			for m=0 to size-1 {
+				param += dstArr[getArrLinePos(dstArr, i, m)]*rightArr[m];
+				Commentary("param:"+Text(param));
+			}
+			paramArr[i] = param;
+		}
+		ShowArr("paramArr", paramArr);
+
+		return paramArr[size-1];
+End
+

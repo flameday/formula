@@ -1,0 +1,40 @@
+//------------------------------------------------------------------------
+// 简称:K140
+// 名称:大阳烛
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	Numeric tick = MinMove*PriceScale;
+	Bool Con = (Close-Open)>20*tick;
+	Bool Con1 = ABS(High-Close)<2*tick;
+	if(!Con1)
+	{
+		Con1 = (Close - Open) / ABS(High-Close)>10; 
+	}
+	
+	Bool Con2 = ABS(Open-Low)<2*tick;
+	if(!Con2)
+	{
+		Con2 = (Close-Open) / ABS(Open-Low)>10;
+	}
+	
+		     
+	//策略执行区
+	if(Con && Con1 && Con2)
+	{
+		ColorBar(ColorUp());
+	}
+	else
+	{
+		ColorBar(RGB(160,160,160));
+	}
+
+	
+End

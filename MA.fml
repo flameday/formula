@@ -1,0 +1,102 @@
+//------------------------------------------------------------------------
+// 简称:MA
+// 名称:移动平均线
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer P1(10);
+	Integer P2(15);
+	Integer P3(30);
+	Integer P4(35);
+	Integer P5(60);
+	Integer P6(60);
+	Integer P7(150);
+	Integer P8(150);
+	
+Vars		
+	Integer i;
+	Integer j;
+	Integer m;
+	Integer n;
+GlobalVars
+Begin	
+	
+	//求移动平均	
+	Numeric MA1 = AverageFC(Close,P1);
+	Numeric MA2 = AverageFC(Close,P2);
+	Numeric MA3 = AverageFC(Close,P3);
+	Numeric MA4 = AverageFC(Close,P4);
+	Numeric MA5 = AverageFC(Close,P5);
+	Numeric MA6 = AverageFC(Close,P6);
+	Numeric MA7 = AverageFC(Close,P7);
+	Numeric MA8 = AverageFC(Close,P8);
+	
+	//绘指标线
+	
+	//if(CurrentBar>=P1) PlotNumeric("MA"+Text(P1),MA1,0);
+	//if(CurrentBar>=P2)PlotNumeric("MA"+Text(P2),MA2,Yellow);
+	//SetShapeStyle("MA"+Text(P2),1, 0, 1);
+	//if(CurrentBar>=P3)PlotNumeric("MA"+Text(P3),MA3,2);
+	//if(CurrentBar>=P4)PlotNumeric("MA"+Text(P4),MA4,3);
+	//if(CurrentBar>=P5)
+	PlotNumeric("MA"+Text(P1),MA1,Magenta);
+	SetShapeStyle("MA"+Text(P1),2, 0, 1);
+	
+	
+	if(CurrentBar>=P8) {
+		PlotNumeric("MA"+Text(P8),MA8,Yellow);
+	}
+	SetShapeStyle("MA"+Text(P8),1, 0, 1);
+/*	if(CurrentBar>=P6)PlotNumeric("MA"+Text(P6),MA6,Red);
+	SetShapeStyle("MA"+Text(P6),2, 0, 1);*/
+	//if(CurrentBar>=P8)PlotNumeric("MA"+Text(P8),MA8,7);
+/*	PlotNumeric("MA"+Text(P3),MA3,Blue);
+	SetShapeStyle("MA"+Text(P3),2, 0, 1);
+	
+	if(CurrentBar>=P7)PlotNumeric("MA"+Text(P7),MA7,Yellow);
+	SetShapeStyle("MA"+Text(P7),2, 0, 1);
+	//if(CurrentBar>=P7)PlotNumeric("MA"+Text(P7),MA7,7);
+	
+	if (BarStatus == 2) {
+		NumericArray xArr;
+		NumericArray yArr;
+		
+		ArrAdd(xArr, 1);
+		ArrAdd(xArr, 2);
+		ArrAdd(xArr, 3);
+		
+		ArrAdd(yArr,6);
+		ArrAdd(yArr,17);
+		ArrAdd(yArr,34);
+		NumericArray paramsArr;
+		getFitParabola(xArr, yArr, paramsArr);
+		ShowArr("paramsArr", paramsArr);
+		
+		NumericArray dstArr;
+		getArrParabolaValue(xArr, paramsArr, dstArr);
+		ShowArr("dstArr:", dstArr);
+	}
+	Commentary("=============================");*/
+	if (True) {
+		NumericArray highArr;
+		NumericArray aArr;
+		NumericArray bArr;
+		for i = 0 to 10 {
+			if (i < 5) {
+				ArrAdd(highArr, i*0.5);
+				//ArrAdd(highArr, i-1.5);
+				//ArrAdd(highArr, (-1)*i+0.5);
+			} else {
+				ArrAdd(highArr, i*2);
+				//ArrAdd(highArr, (-1)*i);
+			}
+		} 
+		ShowArr("highArr", highArr);
+		OutsideRiseChannel(highArr, 1, aArr, bArr);
+		//OutsideFallChannel(highArr, k, aArr, bArr);
+		ShowArr("aArr", aArr);
+		ShowArr("bArr", bArr);
+	}
+End

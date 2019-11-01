@@ -1,0 +1,23 @@
+//------------------------------------------------------------------------
+// 简称:CDP
+// 名称:逆势操作
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	Numeric PT  = REF(HIGH,1)-REF(LOW,1);
+	Numeric CDP = (HIGH + LOW + CLOSE)/3;
+	
+	PlotNumeric("CDP",CDP);
+	PlotNumeric("AH" , CDP + PT);
+	PlotNumeric("AL" , CDP - PT);
+	PlotNumeric("NH" , 2*CDP-LOW);
+	PlotNumeric("NL" , 2*CDP-HIGH);
+End

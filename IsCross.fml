@@ -1,0 +1,17 @@
+//--------------------------------------------------------------
+// 简称: IsCross
+// 名称: IsCross
+// 类型: 用户函数
+// 输出: Bool
+//--------------------------------------------------------------
+Params
+	NumericSeries MACDDiff15;
+	Integer distance(2);
+Vars
+	Bool flag(False);
+Begin
+	if (MACDDiff15[distance] * MACDDiff15[0] <= 0) {
+		return True;
+	}
+	return False;
+End

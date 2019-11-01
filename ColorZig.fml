@@ -1,0 +1,106 @@
+//------------------------------------------------------------------------
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+
+Params
+	
+Vars	
+	NumericSeries SwingPrice;
+	Numeric SwingHighPrice;
+	Numeric SwingLowPrice;
+	NumericSeries PreBar(0);
+	NumericSeries UpDn(0);
+	Bool SaveSwing(False);
+	Bool NewTL(False);
+	Bool UpdateTL(False);
+Begin
+	If(CurrentBar == 0)
+		SwingPrice = Close;
+	double base = 1;
+	
+	if(BarType == 6) base = 80;
+	Numeric RetracePct = 0.1* BarInterval*base;
+	
+	
+	if(Left(Symbol,5) =="DCE M")
+	{
+		if(BarType == 6)
+		{
+			RetracePct = 3;
+		}
+		Else
+		{
+			RetracePct = RetracePct/2;
+		}
+		
+		RetracePct = max(0.1,RetracePct);
+	}
+	
+	if(Left(Symbol,6) =="DCE PP")
+	{
+		if(BarType == 6)
+		{
+			RetracePct =4;
+		}
+		
+		
+		RetracePct = max(0.1,RetracePct);
+	}
+	
+	SwingHighPrice = SwingHigh( 1, H, 1,2);
+	SwingLowPrice = SwingLow( 1, L, 1, 2 );
+	If (SwingHighPrice <> -1)
+	{
+		If(UpDn <=0 && SwingHighPrice >= SwingPrice * (1+RetracePct*0.01))
+		{
+			UpDn = 1;
+			NewTL = True;
+			SaveSwing = True;
+		}Else If(UpDn == 1 && SwingHighPrice >= SwingPrice)
+		{
+			UpdateTL = True;
+			SaveSwing = True;
+		}
+
+		If(SaveSwing)
+		{
+			SwingPrice = SwingHighPrice;
+			PreBar = CurrentBar;
+		}
+	}Else If(SwingLowPrice <> -1)
+	{
+		If(UpDn >=0 && SwingLowPrice <= SwingPrice * (1-RetracePct*0.01))
+		{
+			UpDn = -1;
+			NewTL = True;
+			SaveSwing = True;
+		}Else If(UpDn == -1 && SwingLowPrice <= SwingPrice)
+		{
+			UpdateTL = True;
+			SaveSwing = True;
+		}
+
+		If(SaveSwing )
+		{
+			SwingPrice = SwingLowPrice;
+			PreBar = CurrentBar;
+		}		
+	}
+		
+	If( NewTL)
+	{
+		PlotNumeric("ZigZag",SwingPrice,-1,1);
+	}Else If(UpdateTL)
+	{
+		If (UpDn == UpDn[1])
+		{
+			Unplot("ZigZag",PreBar - PreBar[1]+1);
+			PlotNumeric("ZigZag",SwingPrice,-1,1);
+		}Else
+		{
+			PlotNumeric("ZigZag",SwingPrice,-1,1);
+		}
+	}		
+	
+End

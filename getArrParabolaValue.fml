@@ -1,0 +1,23 @@
+//--------------------------------------------------------------
+// 简称: getArrParabolaValue
+// 名称: getArrParabolaValue
+// 类型: 用户函数
+// 输出: Numeric
+//--------------------------------------------------------------
+Params
+	NumericArray xArr;
+	NumericArray paramsArr;
+	NumericArrayRef dstArr;
+Vars
+Begin
+	Integer i;
+	for i=0 to ArrLength(xArr)-1 {
+		Numeric sum = 0;
+		Numeric x = xArr[i];
+		sum += paramsArr[0];
+		sum += paramsArr[1]*x;
+		sum += paramsArr[2]*x*x;
+		ArrAdd(dstArr, sum);
+	}
+	Return 0;
+End

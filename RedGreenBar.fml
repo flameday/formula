@@ -1,0 +1,30 @@
+//------------------------------------------------------------------------
+// 简称:DynaRedGreenBar
+// 名称:分时图红绿柱
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	Numeric PreSettlePrice =Q_PreSettlePrice();		//昨结算
+	Numeric S2= MA(CurrentBar==0 ? O:C,2);
+	Numeric S6= MA(CurrentBar==0 ? O:C,5);
+	Numeric DK=2*(S2-S6);
+	
+	Integer clr =0;
+	
+	If(ColorBk !=0)
+	{
+		clr = DK>0 ? ColorUp : ColorDown;
+	}
+	
+	PlotStickLine("红绿柱",PreSettlePrice,PreSettlePrice+DK, clr);
+	
+	
+End

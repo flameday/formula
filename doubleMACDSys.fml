@@ -1,0 +1,153 @@
+//------------------------------------------------------------------------
+// 简称:doubleMACDSys
+// 名称:双MACD系统
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Numeric FastLength(12);
+    Numeric SlowLength(26);
+    Numeric MACDLength(9);
+	
+	Numeric TimeFrame(60);               // 目标时间周期参数，参数说明参见MtBar
+    Numeric BarsBack(1);                 // 目标时间周期BAR偏移参数，说明见MtBar函数
+	Numeric Lots(1);
+GlobalVars	
+	//全局变量定义
+	Integer lastCrossPos(-1);
+Vars		
+	//局部变量定义
+	NumericSeries MACDValue5;
+    Numeric AvgMACD5;
+    NumericSeries MACDDiff5;//定义为序列变量
+	
+	NumericSeries MACDValue15;
+	NumericSeries AvgMACD15;
+	NumericSeries MACDDiff15;
+	Numeric ooMACDValue;
+	Numeric ooAvgMACD;
+	Numeric PreBar;
+	Numeric tolerent;
+	Integer i(0);
+	Numeric y;
+	
+	Integer readyToAction;//0: 1 buy 0 nothin -1 sell
+	Numeric lastPrice;//10
+	Numeric profit;//20
+Begin
+	if (CurrentBar == 0) {
+		SetGlobalVar(0, 0);
+		SetGlobalVar(10, 0);
+		SetGlobalVar(20,0);
+	}
+	readyToAction = GetGlobalVar(0);
+	lastPrice = GetGlobalVar(10);
+	profit = GetGlobalVar(20);
+	
+	//1，获取5分钟的MACD
+	MACDValue5 = XAverage( Close, FastLength ) - XAverage( Close, SlowLength ) ;       
+	AvgMACD5 = XAverage(MACDValue5, MACDLength);
+	MACDDiff5 = MACDValue5 - AvgMACD5;
+	
+	//2, 获取15分钟的MACD
+	PreBar = MtMACD(TimeFrame,BarsBack,FastLength,SlowLength,MACDLength,ooMACDValue,ooAvgMACD);
+	MACDVAlue15 = ooMACDValue;
+	AvgMACD15 = ooAvgMACD;
+	MACDDiff15 = MACDValue15 - AvgMACD15;
+	
+	//3, 判断是否到了顶、底
+	// 这里是不是有 MACD 的延迟？
+	Bool flag = False;
+	tolerent = 0;
+	if (MACDDiff15[2] != 0) {
+		tolerent = Abs(MACDDiff15[1] - MACDDiff15[2]) / Abs(MACDDiff15[2]);
+		if (tolerent >= 0.05) {
+			flag = True;
+		}
+	}
+	if (MACDDiff15[3] != 0) {
+		tolerent = Abs(MACDDiff15[1] - MACDDiff15[3]) / Abs(MACDDiff15[3]);
+		if (tolerent >= 0.05) {
+			flag = True;
+		}
+	}
+	If((MACDDiff15[1] > MACDDiff15[2]) && (readyToAction != 1) && flag)
+	{
+		lastCrossPos = CurrentBar;
+		// 交易信号
+		readyToAction = 1;
+		Commentary("MACDDiff15[1]="  +Text(MACDDiff15[1]) + " MACDDiff15[2]=" +Text(MACDDiff15[2]));
+		Commentary(" readyToAction=" +Text(readyToAction) + " CurrentBar=" +Text(CurrentBar));
+	} else if ((MACDDiff15[1] < MACDDiff15[2]) && (readyToAction != -1) && flag) {
+		/*if (CurrentBar > 2400) {
+			NumericArray xArr;
+			NumericArray yArr;
+			NumericArray paramsArr;
+			NumericArray dstArr;
+			for i=0 to CurrentBar-lastCrossPos-1 {
+				y = MACDDiff15[CurrentBar - lastCrossPos];
+				ArrAdd(xArr, i);
+				ArrAdd(yArr, y);
+			}
+			getFitParabola(xArr, yArr, paramsArr);
+			getArrParabolaValue(xArr, paramsArr, dstArr);
+			for i=0 to CurrentBar-lastCrossPos-1-1 {
+				PartLine("parabola", lastCrossPos +i, dstArr[i],
+									 lastCrossPos +i + 1, dstArr[i+1]);
+			}
+		}
+		lastCrossPos = CurrentBar;*/
+		 
+		// 交易信号
+		readyToAction = -1;
+		Commentary("MACDDiff15[1]="  +Text(MACDDiff15[1]) + " MACDDiff15[2]=" +Text(MACDDiff15[2]));
+		Commentary(" readyToAction=" +Text(readyToAction) + " CurrentBar=" +Text(CurrentBar));
+	}
+		
+	//策略执行区
+	// 买入信号
+	if (readyToAction == 1) {
+		// 平仓
+		if (MarketPosition == -1) {
+			//keep sell
+			BuyToCover(Lots);
+			profit += lastPrice - Open - 1;
+			commentary("profit= " + Text(profit));
+		} 
+		// 开仓
+		if (MarketPosition() == 0) {
+			//5 分钟死叉，或者已经死叉了
+			if (MACDDiff5 >= 0) {
+				Buy(Lots,Open);
+				lastPrice = Open;
+			}
+		} if (MarketPosition() == -1) {
+			//keep sell
+		}
+	} else if (readyToAction == -1) { // 卖出信号
+		// 平仓
+		if (MarketPosition == 1) {
+			//keep sell
+			Sell(Lots);
+			profit += Open - lastPrice - 1;
+			commentary("profit= " + Text(profit));
+		} 
+		// 开仓
+		if (MarketPosition() == 0) {
+			//5 分钟死叉，或者已经死叉了
+			if (MACDDiff5 <= 0) {
+				SellShort(Lots,Open);
+				lastPrice = Open;
+			}
+		} if (MarketPosition() == -1) {
+			//keep sell
+		}
+	}
+	
+	SetGlobalVar(0, readyToAction);
+	SetGlobalVar(10, lastPrice);
+	SetGlobalVar(20, profit);
+	//PlotNumeric("CurrentBar", CurrentBar);
+	//PlotNumeric("profit", profit);
+End

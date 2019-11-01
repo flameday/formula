@@ -1,0 +1,32 @@
+//------------------------------------------------------------------------
+// 简称:DMI
+// 名称:趋向指标
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer N(14);
+	Integer M(6);
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	Numeric TR = Summation(MAX(MAX(HIGH-LOW,ABS(HIGH-CLOSE[1])),ABS(LOW-CLOSE[1])),N);
+	Numeric HD = HIGH-HIGH[1];
+	Numeric LD = LOW[1]-LOW;
+	Numeric DMP = Summation(IIF(HD>0 AND HD>LD,HD,0),N);
+	Numeric DMM = Summation(IIF(LD>0 AND LD>HD,LD,0),N);
+	
+	Numeric PDI = DMP*100/TR;
+	PlotNumeric("PDI", PDI);
+	
+	Numeric MDI = DMM*100/TR;
+	PlotNumeric("MDI", MDI);
+	Numeric ADX = AverageFC(ABS(MDI-PDI)/(MDI+PDI)*100,M);
+	
+	PlotNumeric("ADX", ADX);
+	PlotNumeric("ADXR",(ADX+REF(ADX,M))/2);
+End

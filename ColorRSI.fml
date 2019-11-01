@@ -1,0 +1,28 @@
+//------------------------------------------------------------------------
+// 简称:ColorRSI
+// 名称:ColorRSI
+// 类别: 交易指令
+// 类型: 用户应用
+//------------------------------------------------------------------------
+Params  	
+	//参数定义
+	Integer N(6);
+	Integer LL(20);
+	Integer HH(80);
+GlobalVars	
+	//全局变量定义
+Vars		
+	//局部变量定义
+Begin		
+	//策略执行区
+	
+	Numeric fRSI = RSI(Close,N);
+	if(fRSI<LL)
+	{
+		ColorBar(ColorUp());
+	}
+	if(fRSI>HH)
+	{
+		ColorBar(ColorDown());
+	}
+End
