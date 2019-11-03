@@ -41,8 +41,8 @@ Begin
 	//if(CurrentBar>=P3)PlotNumeric("MA"+Text(P3),MA3,2);
 	//if(CurrentBar>=P4)PlotNumeric("MA"+Text(P4),MA4,3);
 	//if(CurrentBar>=P5)
-	PlotNumeric("MA"+Text(P1),MA1,Magenta);
-	SetShapeStyle("MA"+Text(P1),2, 0, 1);
+	//PlotNumeric("MA"+Text(P1),MA1,Magenta);
+	//SetShapeStyle("MA"+Text(P1),2, 0, 1);
 	
 	
 	if(CurrentBar>=P8) {

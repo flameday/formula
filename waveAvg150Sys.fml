@@ -17,6 +17,7 @@ Vars
 		NumericSeries highArr;
 		NumericSeries closeArr;
 		NumericSeries avg150;
+		Integer standLimit(3);
 		Integer offset;
 		Integer i;
 		
@@ -109,7 +110,7 @@ Begin
 					maxCount += 1;
 				}
 				//绘制
-				if (maxCount >= 3 && lastMax == -1) {
+				if (maxCount >= standLimit && lastMax == -1) {
 					lastMax = i;
 					SetGlobalVar(1, i);
 					break;
@@ -124,7 +125,7 @@ Begin
 					minCount += 1;
 				}
 				//绘制
-				if (minCount >= 3 && lastMin == -1) {
+				if (minCount >= standLimit && lastMin == -1) {
 					lastMin = i;
 					SetGlobalVar(0, i);
 					break;
@@ -159,7 +160,7 @@ Begin
 			}
 			// 判断1：掉头向下？
 			if (lastMin < lastMax) {
-				if (highCntFromLastMin >= 3) {
+				if (highCntFromLastMin >= standLimit) {
 					//高度比较
 					if (highArr[CurrentBar - lastMax] > highArr[0]){
 						//keep old
@@ -169,7 +170,7 @@ Begin
 						SetGlobalVar(1, CurrentBar);
 					}
 				}
-				if (lowCntFromLastMax >= 3) {
+				if (lowCntFromLastMax >= standLimit) {
 					//保存上一个lastMin
 					index0 = (index0 +1)%9;
 					SetGlobalVar(40 + index0, lastMin);
@@ -182,7 +183,7 @@ Begin
 				}
 			} else if(lastMin > lastMax) {
 				//判断2：掉头向上？
-				if (lowCntFromLastMax >= 3) {
+				if (lowCntFromLastMax >= standLimit) {
 					//高度比较
 					if (lowArr[CurrentBar - lastMin] < lowArr[0]) {
 						//keep
@@ -192,7 +193,7 @@ Begin
 						SetGlobalVar(0, CurrentBar);
 					}
 				}
-				if (highCntFromLastMin >= 3) {
+				if (highCntFromLastMin >= standLimit) {
 					index1 = (index1 +1)%9;
 					SetGlobalVar(30+index1, lastMax);
 					SetGlobalVar(39, index1);
@@ -205,18 +206,18 @@ Begin
 		
 		//画线数浪
 		if (oldMin > oldMax &&lastMax > oldMax) {
-			PartLine("minMax2", CurrentBar-oldMax, highArr[CurrentBar-oldMax], CurrentBar-oldMin, lowArr[CurrentBar-oldMin]);
+			PartLine("minMax2", CurrentBar-oldMax, highArr[CurrentBar-oldMax], CurrentBar-oldMin, lowArr[CurrentBar-oldMin], DarkMagenta);
 		}
 		if (oldMax >oldMin && lastMin > oldMin){
-			PartLine("minMax2", CurrentBar-oldMin, lowArr[CurrentBar-oldMin], CurrentBar-oldMax, highArr[CurrentBar-oldMax]);
+			PartLine("minMax2", CurrentBar-oldMin, lowArr[CurrentBar-oldMin], CurrentBar-oldMax, highArr[CurrentBar-oldMax], DarkMagenta);
 		}
 		
 		if (lastMax == oldMax && lastMin == oldMin
 				) {
 				if ( lastMin > lastMax ) {
-					PartLine("tail",CurrentBar-oldMax, highArr[CurrentBar-oldMax], CurrentBar-lastMin, lowArr[CurrentBar-lastMin]);	
+					PartLine("tail",CurrentBar-oldMax, highArr[CurrentBar-oldMax], CurrentBar-lastMin, lowArr[CurrentBar-lastMin], DarkMagenta);	
 				} else {
-					PartLine("tail", CurrentBar-oldMin, lowArr[CurrentBar-oldMin], CurrentBar-lastMax, highArr[CurrentBar-lastMax]);
+					PartLine("tail", CurrentBar-oldMin, lowArr[CurrentBar-oldMin], CurrentBar-lastMax, highArr[CurrentBar-lastMax], DarkMagenta);
 				}
 		}
 		//判断通道
@@ -226,8 +227,33 @@ Begin
 		PlotNumeric("oldMin:", oldMin);
 		// 开始下跌了
 		if (lastMin == oldMin && CurrentBar - lastMax >= 2) {
+			NumericArray xArr;
+			NumericArray realXArr;
+			NumericArray yArr;
+			NumericArray paramsArr;
+			NumericArray dstArr;
+			Numeric y;
+			for i=0 to lastMax-oldMin + 2 {
+				offset = CurrentBar-oldMin - i;
+				y = highArr[offset];
+				ArrAdd(xArr, i);
+				ArrAdd(yArr, y);
+				y = lowArr[offset];
+				ArrAdd(xArr, i);
+				ArrAdd(yArr, y);
+				
+				ArrAdd(realXArr, i);
+			}
+			getFitParabola(xArr, yArr, paramsArr);
+			getArrParabolaValue(realXArr, paramsArr, dstArr);
+			for i=0 to lastMax-oldMin + 2{
+				offset = CurrentBar - oldMin -i;
+				PartLine("parabola", offset, dstArr[i],
+									 offset - 1, dstArr[i+1], Yellow,2);
+			}
+			
 			// 从最高点开始偏移3个Bar，也就是一笔，判断是否要动单
-			NumericArray lArr;
+			/*NumericArray lArr;
 			slope = (highArr[CurrentBar-oldMin] - highArr[CurrentBar-lastMax])/(oldMin - lastMax);
 			NumericArray aArr;
 			NumericArray bArr;
@@ -250,7 +276,8 @@ Begin
 				x2 = lastMax - oldMin;
 				y2 = aArr[i]*x2 + bArr[i];
 				Commentary("1 x1,y1,x2,y2:("+Text(x1)+","+Text(y1)+") ("+Text(x2)+","+Text(y2)+")");
-				PartLine("valid", CurrentBar-oldMin-x1, y1, CurrentBar- oldMin - x2, y2);
+				//SetShapeStyle("valid", 3, 2, True);
+				PartLine("valid", CurrentBar-oldMin-x1, y1, CurrentBar- oldMin - x2, y2, White, 3);
 				//ShowArr("aArr", aArr);
 				//ShowArr("bArr", bArr);
 				if (aArr[i]*x + bArr[i] > y) {
@@ -258,14 +285,38 @@ Begin
 					break;
 				}
 				Commentary("1 isOutsideRiseChannel:"+Text(isOutsideRiseChannel) + " slope:"+Text(slope) + " lastEnter:"+Text(lastEnter) + " CurrentBar:"+Text(CurrentBar));
-			}
+			}*/
 		}
 		
 		Bool isOutsideFallChannel = False;
 		//开始上涨啦
 		if (lastMax == oldMax && CurrentBar - lastMin >= 2) {
+			NumericArray xArr;
+			NumericArray realXArr;
+			NumericArray yArr;
+			NumericArray paramsArr;
+			NumericArray dstArr;
+			Numeric y;
+			for i=0 to lastMin-oldMax {
+				offset = CurrentBar-oldMax - i;
+				y = highArr[offset];
+				ArrAdd(xArr, i);
+				ArrAdd(yArr, y);
+				y = lowArr[offset];
+				ArrAdd(xArr, i);
+				ArrAdd(yArr, y);
+				
+				ArrAdd(realXArr, i);
+			}
+			getFitParabola(xArr, yArr, paramsArr);
+			getArrParabolaValue(realXArr, paramsArr, dstArr);
+			for i=0 to lastMin-oldMax - 1 {
+				offset = CurrentBar - oldMax -i;
+				PartLine("parabola", offset, dstArr[i],
+									 offset - 1, dstArr[i+1], White,2);
+			}
 			//从最高点开始偏移3个Bar，也就是一笔，判断是否要动单
-			NumericArray hArr;
+			/*NumericArray hArr;
 			slope = (highArr[CurrentBar-oldMax]-highArr[CurrentBar-lastMin])/(oldMax - lastMin);
 			NumericArray aArr;
 			NumericArray bArr;
@@ -283,14 +334,14 @@ Begin
 				y1 = aArr[i]*x1 + bArr[i];
 				x2 = lastMin - oldMax;
 				y2 = aArr[i]*x2 + bArr[i];
-				PartLine("valid", CurrentBar-oldMax-x1, y1, CurrentBar-oldMax-x2, y2);
+				PartLine("valid", CurrentBar-oldMax-x1, y1, CurrentBar-oldMax-x2, y2, White, 3);
 				Commentary("3 isOutsideFallChannel:"+Text(isOutsideFallChannel) + " slope:"+Text(slope) + " lastEnter:"+Text(lastEnter));
 					
 				if (aArr[i]*x + bArr[i] < y) {
 					isOutsideFallChannel = True;
 					break;
 				}
-			}
+			}*/
 		}
 		return;
 		
