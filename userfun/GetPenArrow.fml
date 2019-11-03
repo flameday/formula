@@ -1,0 +1,133 @@
+//--------------------------------------------------------------
+// 简称: GetPenArrow
+// 名称: 获得一笔
+// 类型: 用户函数
+// 输出: Numeric
+//--------------------------------------------------------------
+Params
+	NumericArrayRef highArr;
+	NumericArrayRef lowArr;
+	NumericArrayRef dstXArr;
+	NumericArrayRef dstYArr;
+	Integer direction;//1 or -1
+Vars
+Begin
+	NumericArray validIndexArr;
+	NumericArray validFlagArr;
+	NumericArray flagHighArr;
+	NumericArray flagLowArr;
+	Integer i;
+	Integer totalSize = ArrLength(highArr);
+	
+	// 高点的判断
+	for i=0 to totalSize-1 {
+		ArrAdd(flagHighArr, 0);
+		Numeric tmpSize = ArrLength(flagHighArr);
+		
+		if (i == 0 && totalSize > 1) {
+			//第一个
+			if (highArr[i] > highArr[i+1]) {
+				flagHighArr[tmpSize-1] = 1;
+			}
+		} else if (i == totalSize-1 && totalSize > 1) {
+			//中间的
+			if (highArr[i] > highArr[i-1]) {
+				flagHighArr[tmpSize-1] = 1;
+			}
+		} else if (highArr[i] > highArr[i-1] && 
+		           highArr[i] > highArr[i+1]) {
+			//最后一个
+			flagHighArr[tmpSize-1] = 1;
+		}
+	}
+	// 低点的判断
+	for i=0 to totalSize-1 {
+		ArrAdd(flagLowArr, 0);
+		Numeric tmpSize = ArrLength(flagLowArr);
+		
+		if (i == 0 && totalSize > 1) {
+			//第一个
+			if (lowArr[i] < lowArr[i+1]) {
+				flagLowArr[tmpSize-1] = -1;
+			}
+		} else if (i == totalSize-1 && totalSize > 1) {
+			//中间的
+			if (lowArr[i] < lowArr[i-1]) {
+				flagLowArr[tmpSize-1] = -1;
+			}
+		} else if (lowArr[i] < lowArr[i-1] && 
+		           lowArr[i] < lowArr[i+1]) {
+			//最后一个
+			flagLowArr[tmpSize-1] = -1;
+		}
+	//ShowArr("1 flagLowArr", flagLowArr);
+	}
+	ShowArr("flagLowArr", flagLowArr);
+	ShowArr("flagHighArr", flagHighArr);
+	//判断是否是合理的一笔
+	//第一个点，总是有效的
+	
+	if (direction == 1) {
+		Integer lastLowIndex = 0;
+		Integer lastHighIndex = -1;
+		
+		ArrAdd(validIndexArr, 0);
+		ArrAdd(validFlagArr, -1);
+		//search high
+		Integer flag = 1;
+		for i=1 to totalSize - 1 {
+			if (flag == 1) {
+				if (flagHighArr[i] == 1 && i >= lastLowIndex+4) {
+					Commentary("flag 1");
+					
+					lastHighIndex = i;
+					flag = -1;
+					ArrAdd(validIndexArr, i);
+					ArrAdd(validFlagArr, 1);
+/*	ShowArr("1 validIndexArr", validIndexArr);
+	ShowArr("1 validFlagArr", validFlagArr);*/
+				}
+			} else if (flag == -1) {
+				if (flagLowArr[i] == -1 && i >= lastHighIndex+4) {
+					lastLowIndex = i;
+					flag = 1;
+					ArrAdd(validIndexArr, i);
+					ArrAdd(validFlagArr, -1);
+				}
+/*	ShowArr("2 validIndexArr", validIndexArr);
+	ShowArr("2 validFlagArr", validFlagArr);*/
+			}
+		}//for i=1 to totalSize - 1
+	}//if (direction == 1) {
+	else if (direction == -1) {
+		Integer lastLowIndex = -1;
+		Integer lastHighIndex = 0;
+		
+		ArrAdd(validIndexArr, 0);
+		ArrAdd(validFlagArr, 1);
+		//search high
+		Integer flag = -1;
+		for i=1 to totalSize - 1 {
+			if (flag == 1) {
+				if (flagHighArr[i] == 1 && i >= lastLowIndex+4) {
+					lastHighIndex = i;
+					flag = -1;
+					ArrAdd(validIndexArr, i);
+					ArrAdd(validFlagArr, 1);
+				}
+			} else if (flag == -1) {
+				if (flagLowArr[i] == -1 && i >= lastHighIndex+4) {
+					lastLowIndex = i;
+					flag = 1;
+					ArrAdd(validIndexArr, i);
+					ArrAdd(validFlagArr, -1);
+				}
+			}
+		}
+	}
+	Commentary("validIndexArr size:"+Text(ArrLength(validIndexArr)));
+	ShowArr("return validIndexArr", validIndexArr);
+	ShowArr("return validFlagArr", validFlagArr);
+	
+	Return 0;
+End

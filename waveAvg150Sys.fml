@@ -206,34 +206,51 @@ Begin
 		
 		//画线数浪
 		if (oldMin > oldMax &&lastMax > oldMax) {
-			PartLine("minMax2", CurrentBar-oldMax, highArr[CurrentBar-oldMax], CurrentBar-oldMin, lowArr[CurrentBar-oldMin], DarkMagenta);
+		 	x1 = CurrentBar-oldMax;
+			y1 = highArr[CurrentBar-oldMax];
+			x2 = CurrentBar-oldMin;
+			y2 = lowArr[CurrentBar-oldMin];
+/*			PartLine("area1", x1, y1, x2, y1, White);
+			PartLine("area2", x2, y1, x2, y2, White);
+			PartLine("area3", x2, y2, x1, y2, White);
+			PartLine("area4", x1, y2, x1, y1, White);*/
+			
+			PartLine("minMax2", CurrentBar-oldMax, highArr[CurrentBar-oldMax], CurrentBar-oldMin, lowArr[CurrentBar-oldMin], Cyan);
 		}
 		if (oldMax >oldMin && lastMin > oldMin){
-			PartLine("minMax2", CurrentBar-oldMin, lowArr[CurrentBar-oldMin], CurrentBar-oldMax, highArr[CurrentBar-oldMax], DarkMagenta);
+			x1 = CurrentBar-oldMin;
+			y1 = lowArr[CurrentBar-oldMin];
+			x2 = CurrentBar-oldMax;
+			y2 = highArr[CurrentBar-oldMax];
+/*			PartLine("area1", x1, y1, x2, y1, White);
+			PartLine("area2", x2, y1, x2, y2, White);
+			PartLine("area3", x2, y2, x1, y2, White);
+			PartLine("area4", x1, y2, x1, y1, White);*/
+			PartLine("minMax2", CurrentBar-oldMin, lowArr[CurrentBar-oldMin], CurrentBar-oldMax, highArr[CurrentBar-oldMax], Cyan);
 		}
 		
-		if (lastMax == oldMax && lastMin == oldMin
-				) {
+		if (lastMax == oldMax && lastMin == oldMin) {
 				if ( lastMin > lastMax ) {
-					PartLine("tail",CurrentBar-oldMax, highArr[CurrentBar-oldMax], CurrentBar-lastMin, lowArr[CurrentBar-lastMin], DarkMagenta);	
+					PartLine("tail",CurrentBar-oldMax, highArr[CurrentBar-oldMax], CurrentBar-lastMin, lowArr[CurrentBar-lastMin], Magenta);	
 				} else {
-					PartLine("tail", CurrentBar-oldMin, lowArr[CurrentBar-oldMin], CurrentBar-lastMax, highArr[CurrentBar-lastMax], DarkMagenta);
+					PartLine("tail", CurrentBar-oldMin, lowArr[CurrentBar-oldMin], CurrentBar-lastMax, highArr[CurrentBar-lastMax], Magenta);
 				}
 		}
 		//判断通道
-		Bool isOutsideRiseChannel = False;
+		/*Bool isOutsideRiseChannel = False;
 		PlotNumeric("CurrentBar:", CurrentBar);
 		PlotNumeric("lastMax:", lastMax);
 		PlotNumeric("oldMin:", oldMin);
 		// 开始下跌了
-		if (lastMin == oldMin && CurrentBar - lastMax >= 2) {
+		//if (lastMin == oldMin && CurrentBar - lastMax >= 2) {
+		if (lastMax > oldMin) {
 			NumericArray xArr;
 			NumericArray realXArr;
 			NumericArray yArr;
 			NumericArray paramsArr;
 			NumericArray dstArr;
 			Numeric y;
-			for i=0 to lastMax-oldMin + 2 {
+			for i=0 to CurrentBar - oldMin - 1 {
 				offset = CurrentBar-oldMin - i;
 				y = highArr[offset];
 				ArrAdd(xArr, i);
@@ -246,59 +263,24 @@ Begin
 			}
 			getFitParabola(xArr, yArr, paramsArr);
 			getArrParabolaValue(realXArr, paramsArr, dstArr);
-			for i=0 to lastMax-oldMin + 2{
+			for i=0 to ArrLength(dstArr)-1 {
 				offset = CurrentBar - oldMin -i;
 				PartLine("parabola", offset, dstArr[i],
 									 offset - 1, dstArr[i+1], Yellow,2);
 			}
-			
-			// 从最高点开始偏移3个Bar，也就是一笔，判断是否要动单
-			/*NumericArray lArr;
-			slope = (highArr[CurrentBar-oldMin] - highArr[CurrentBar-lastMax])/(oldMin - lastMax);
-			NumericArray aArr;
-			NumericArray bArr;
-			NumericArray xArr;
-			for i=oldMin to lastMax {
-				ArrAdd(lArr, lowArr[CurrentBar-i]);
-			}
-			//Commentary("oldMin, lastMax:"+Text(oldMin) + "," +Text(lastMax));
-			//ShowArr("lowArr", lArr);
-			OutsideRiseChannel(lArr, slope, aArr, bArr);
-			ShowArr("1 aArr", aArr);
-			ShowArr("1 bArr", bArr);
-			Numeric x = CurrentBar - 1 - oldMin;
-			Numeric y = closeArr[1];
-			// y = y1 +[(y2-y1)/(x2-x1)]*(x-x1)
-			for i=0 to ArrLength(aArr)-1 {
-				//知道y=a*x+b之后，绘制直线
-				x1 = -5;
-				y1 = aArr[i]*x1 + bArr[i];
-				x2 = lastMax - oldMin;
-				y2 = aArr[i]*x2 + bArr[i];
-				Commentary("1 x1,y1,x2,y2:("+Text(x1)+","+Text(y1)+") ("+Text(x2)+","+Text(y2)+")");
-				//SetShapeStyle("valid", 3, 2, True);
-				PartLine("valid", CurrentBar-oldMin-x1, y1, CurrentBar- oldMin - x2, y2, White, 3);
-				//ShowArr("aArr", aArr);
-				//ShowArr("bArr", bArr);
-				if (aArr[i]*x + bArr[i] > y) {
-					isOutsideRiseChannel = True;
-					break;
-				}
-				Commentary("1 isOutsideRiseChannel:"+Text(isOutsideRiseChannel) + " slope:"+Text(slope) + " lastEnter:"+Text(lastEnter) + " CurrentBar:"+Text(CurrentBar));
-			}*/
 		}
 		
 		Bool isOutsideFallChannel = False;
 		//开始上涨啦
-		if (lastMax == oldMax && CurrentBar - lastMin >= 2) {
+		if (lastMin > oldMax) {
 			NumericArray xArr;
 			NumericArray realXArr;
 			NumericArray yArr;
 			NumericArray paramsArr;
 			NumericArray dstArr;
 			Numeric y;
-			for i=0 to lastMin-oldMax {
-				offset = CurrentBar-oldMax - i;
+			for i=0 to CurrentBar - oldMax - 1 {
+				offset = CurrentBar - oldMax - i;
 				y = highArr[offset];
 				ArrAdd(xArr, i);
 				ArrAdd(yArr, y);
@@ -310,39 +292,12 @@ Begin
 			}
 			getFitParabola(xArr, yArr, paramsArr);
 			getArrParabolaValue(realXArr, paramsArr, dstArr);
-			for i=0 to lastMin-oldMax - 1 {
+			for i=0 to ArrLength(dstArr)-1 {
 				offset = CurrentBar - oldMax -i;
 				PartLine("parabola", offset, dstArr[i],
 									 offset - 1, dstArr[i+1], White,2);
 			}
-			//从最高点开始偏移3个Bar，也就是一笔，判断是否要动单
-			/*NumericArray hArr;
-			slope = (highArr[CurrentBar-oldMax]-highArr[CurrentBar-lastMin])/(oldMax - lastMin);
-			NumericArray aArr;
-			NumericArray bArr;
-			for i=oldMax to lastMin {
-				ArrAdd(hArr, highArr[CurrentBar-i]);
-			} 
-			//ShowArr("hArr", hArr);
-			OutsideFallChannel(hArr, slope, aArr, bArr);
-			Numeric x = CurrentBar - 1 - oldMax;
-			Numeric y = closeArr[1];
-			//y = y1 +[(y2-y1)/(x2-x1)]*(x-x1)
-			for i=0 to ArrLength(aArr)-1 {
-				//知道y=a*x+b之后，绘制直线
-				x1 = -5;
-				y1 = aArr[i]*x1 + bArr[i];
-				x2 = lastMin - oldMax;
-				y2 = aArr[i]*x2 + bArr[i];
-				PartLine("valid", CurrentBar-oldMax-x1, y1, CurrentBar-oldMax-x2, y2, White, 3);
-				Commentary("3 isOutsideFallChannel:"+Text(isOutsideFallChannel) + " slope:"+Text(slope) + " lastEnter:"+Text(lastEnter));
-					
-				if (aArr[i]*x + bArr[i] < y) {
-					isOutsideFallChannel = True;
-					break;
-				}
-			}*/
-		}
+		}*/
 		return;
 		
 		
@@ -350,7 +305,7 @@ Begin
 		
 		
 		// 上涨完成，开始下跌了
-		if (isOutsideRiseChannel && slope > 0) {
+		/*if (isOutsideRiseChannel && slope > 0) {
 			SetShapeStyle("rise",2, 0, 1);
 			//------------------------------------------------------------
 			// 如果有单
@@ -414,7 +369,7 @@ Begin
 			SetGlobalVar(10, lastEnter);
 			SetGlobalVar(11, profit);
 			SetGlobalVar(12, lastPosition);
-		}
+		}*/
 		//Plotnumeric("lowArr[CurrentBar-lastMin]",lowArr[CurrentBar - lastMin]);
 		//Plotnumeric("lowArr[CurrentBar]",lowArr[0]);
 		//Plotnumeric("avg10[CurrentBar]",avg10[0]);

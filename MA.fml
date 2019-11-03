@@ -41,10 +41,9 @@ Begin
 	//if(CurrentBar>=P3)PlotNumeric("MA"+Text(P3),MA3,2);
 	//if(CurrentBar>=P4)PlotNumeric("MA"+Text(P4),MA4,3);
 	//if(CurrentBar>=P5)
-	//PlotNumeric("MA"+Text(P1),MA1,Magenta);
-	//SetShapeStyle("MA"+Text(P1),2, 0, 1);
-	
-	
+	PlotNumeric("MA"+Text(P1),MA1,Magenta);
+	SetShapeStyle("MA"+Text(P1),2, 0, 1);
+
 	if(CurrentBar>=P8) {
 		PlotNumeric("MA"+Text(P8),MA8,Yellow);
 	}
@@ -79,7 +78,7 @@ Begin
 		ShowArr("dstArr:", dstArr);
 	}
 	Commentary("=============================");*/
-	if (True) {
+	/*if (True) {
 		NumericArray highArr;
 		NumericArray aArr;
 		NumericArray bArr;
@@ -98,5 +97,28 @@ Begin
 		//OutsideFallChannel(highArr, k, aArr, bArr);
 		ShowArr("aArr", aArr);
 		ShowArr("bArr", bArr);
+	}*/
+	NumericArray highArr;
+	NumericArray lowArr;
+	NumericArray dstXArr;
+	NumericArray dstYArr;
+	Integer direction;//1 or -1
+	for i=0 to 20 {
+		ArrAdd(highArr, 0);
+		ArrAdd(lowArr, 0);
+		if (i%10 == 5) {
+			lowArr[i] = -5;
+		}
+		if (i%10 == 0) {
+			highArr[i]=5;
+		}
 	}
+	ShowArr("lowArr", lowArr);
+	ShowArr("highArr", highArr);
+	ShowArr("dstXArr", dstXArr);
+	ShowArr("dstYArr", dstYArr);
+	GetPenArrow(highArr, lowArr, dstXArr, dstYArr, -1);
+	ShowArr("dstXArr", dstXArr);
+	ShowArr("dstYArr", dstYArr);
+	
 End
