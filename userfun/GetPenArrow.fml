@@ -7,13 +7,11 @@
 Params
 	NumericArrayRef highArr;
 	NumericArrayRef lowArr;
-	NumericArrayRef dstXArr;
-	NumericArrayRef dstYArr;
+	NumericArrayRef validIndexArr;
+	NumericArrayRef validValueArr;
 	Integer direction;//1 or -1
 Vars
 Begin
-	NumericArray validIndexArr;
-	NumericArray validFlagArr;
 	NumericArray flagHighArr;
 	NumericArray flagLowArr;
 	Integer i;
@@ -72,7 +70,7 @@ Begin
 		Integer lastHighIndex = -1;
 		
 		ArrAdd(validIndexArr, 0);
-		ArrAdd(validFlagArr, -1);
+		ArrAdd(validValueArr, lowArr[0]);
 		//search high
 		Integer flag = 1;
 		for i=1 to totalSize - 1 {
@@ -83,7 +81,7 @@ Begin
 					lastHighIndex = i;
 					flag = -1;
 					ArrAdd(validIndexArr, i);
-					ArrAdd(validFlagArr, 1);
+					ArrAdd(validValueArr, highArr[i]);
 /*	ShowArr("1 validIndexArr", validIndexArr);
 	ShowArr("1 validFlagArr", validFlagArr);*/
 				}
@@ -92,19 +90,24 @@ Begin
 					lastLowIndex = i;
 					flag = 1;
 					ArrAdd(validIndexArr, i);
-					ArrAdd(validFlagArr, -1);
+					ArrAdd(validValueArr, lowArr[i]);
 				}
 /*	ShowArr("2 validIndexArr", validIndexArr);
 	ShowArr("2 validFlagArr", validFlagArr);*/
 			}
 		}//for i=1 to totalSize - 1
+		//如果没有最后一个点，这里补上
+		if (validIndexArr[ArrLength(validIndexArr)-1] != ArrLength(highArr)-1) {	
+			ArrAdd(validIndexArr, ArrLength(highArr)-1);
+			ArrAdd(validValueArr, highArr[i]);
+		}
 	}//if (direction == 1) {
 	else if (direction == -1) {
 		Integer lastLowIndex = -1;
 		Integer lastHighIndex = 0;
 		
 		ArrAdd(validIndexArr, 0);
-		ArrAdd(validFlagArr, 1);
+		ArrAdd(validValueArr, highArr[0]);
 		//search high
 		Integer flag = -1;
 		for i=1 to totalSize - 1 {
@@ -113,21 +116,25 @@ Begin
 					lastHighIndex = i;
 					flag = -1;
 					ArrAdd(validIndexArr, i);
-					ArrAdd(validFlagArr, 1);
+					ArrAdd(validValueArr, highArr[i]);
 				}
 			} else if (flag == -1) {
 				if (flagLowArr[i] == -1 && i >= lastHighIndex+4) {
 					lastLowIndex = i;
 					flag = 1;
 					ArrAdd(validIndexArr, i);
-					ArrAdd(validFlagArr, -1);
+					ArrAdd(validValueArr, lowArr[i]);
 				}
 			}
+		}//如果没有最后一个点，这里补上
+		if (validIndexArr[ArrLength(validIndexArr)-1] != ArrLength(highArr)-1) {	
+			ArrAdd(validIndexArr, ArrLength(lowArr)-1);
+			ArrAdd(validValueArr, lowArr[i]);
 		}
 	}
 	Commentary("validIndexArr size:"+Text(ArrLength(validIndexArr)));
 	ShowArr("return validIndexArr", validIndexArr);
-	ShowArr("return validFlagArr", validFlagArr);
+	ShowArr("return validValueArr", validValueArr);
 	
 	Return 0;
 End

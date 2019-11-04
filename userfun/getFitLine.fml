@@ -10,30 +10,31 @@ Params
 Vars
 Begin
 	//Ö±ÏßÄâºÏ
-		ArrAdd(xArr, 1);
-		ArrAdd(xArr, 2);
-		ArrAdd(xArr, 3);
-		ArrAdd(yArr,3);
-		ArrAdd(yArr,5);
-		ArrAdd(yArr,7);
-		ShowArr("xArr", xArr);
-		Commentary("getArrSum(xArr)= " + Text(getArrSum(xArr)));
-		Commentary("getArrSum(yArr)= " + Text(getArrSum(yArr)));
-		Commentary("getArrXYSum(xArr, yArr))= " + Text(getArrXYSum(xArr, yArr)));
-		Commentary("getArrSquareSum(xArr)= " + Text(getArrSquareSum(xArr)));
-		Commentary("getArrSquareSum(yArr)= " + Text(getArrSquareSum(yArr)));
-		
-		NumericArray leftArr;
-		NumericArray rightArr;
-		ArrAdd(leftArr, ArrLength(xArr));
-		ArrAdd(leftArr, getArrSum(xArr));
-		ArrAdd(leftArr, getArrSum(xArr));
-		ArrAdd(leftArr, getArrSquareSum(xArr));
-		
-		ArrAdd(rightArr, getArrSum(yArr));
-		ArrAdd(rightArr, getArrXYSum(xArr, yArr));
-		NumericArray paramsArr;
-		Numeric k = getParamByGaussJordan(leftArr, rightArr, paramsArr);
-		Commentary("k="+Text(k));
-		return k;
+/*	ArrAdd(xArr, 1);
+	ArrAdd(xArr, 2);
+	ArrAdd(xArr, 3);
+	ArrAdd(yArr,3);
+	ArrAdd(yArr,5);
+	ArrAdd(yArr,7);*/
+	ShowArr("xArr", xArr);
+	ShowArr("yArr", yArr);
+	Commentary("getArrSum(xArr)= " + Text(getArrSum(xArr)));
+	Commentary("getArrSum(yArr)= " + Text(getArrSum(yArr)));
+	Commentary("getArrXYSum(xArr, yArr))= " + Text(getArrXYSum(xArr, yArr)));
+	Commentary("getArrSquareSum(xArr)= " + Text(getArrSquareSum(xArr)));
+	Commentary("getArrSquareSum(yArr)= " + Text(getArrSquareSum(yArr)));
+	
+	NumericArray leftArr;
+	NumericArray rightArr;
+	ArrAdd(leftArr, ArrLength(xArr));
+	ArrAdd(leftArr, getArrSum(xArr));
+	ArrAdd(leftArr, getArrSum(xArr));
+	ArrAdd(leftArr, getArrSquareSum(xArr));
+	
+	ArrAdd(rightArr, getArrSum(yArr));
+	ArrAdd(rightArr, getArrXYSum(xArr, yArr));
+	NumericArray paramsArr;
+	Numeric k = getParamByGaussJordan(leftArr, rightArr, paramsArr);
+	Commentary("k="+Text(k));
+	return k;
 End
