@@ -266,10 +266,20 @@ Begin
 				ArrAdd(yArr, lowArr[offset] - base);
 			}
 			GetPenArrow(highPartArr, lowPartArr, dstXArr, dstValueArr, 1);
+			// »æÍ¼
+			for i=0 to ArrLength(dstXArr) - 2 {
+				x1 = CurrentBar-oldMin - dstXArr[i];
+				y1 = dstValueArr[i] +base; 
+				x2 = CurrentBar-oldMin - dstXArr[i+1];
+				y2 = dstValueArr[i+1]+base;
+				 
+				PartLine("Pen"+Text(i), x1, y1, x2, y2);
+				Commentary("x1,x2,y1,y2=("+Text(x1)+","+Text(y1)+") ("+Text(x2)+","+Text(y2)+")" );
+			}
 			//fit
 			Numeric a;
 			if (ArrLength(dstXArr) <= 3) {
-				//fit line
+				a = getFitLine(xArr, yArr);
 			} else {
 				//a = getFitLine(xArr, lowPartArr);
 				a = getFitLine(dstXArr, dstValueArr);

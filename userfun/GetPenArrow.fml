@@ -99,7 +99,7 @@ Begin
 		//如果没有最后一个点，这里补上
 		if (validIndexArr[ArrLength(validIndexArr)-1] != ArrLength(highArr)-1) {	
 			ArrAdd(validIndexArr, ArrLength(highArr)-1);
-			ArrAdd(validValueArr, highArr[i]);
+			ArrAdd(validValueArr, highArr[ArrLength(highArr)-1]);
 		}
 	}//if (direction == 1) {
 	else if (direction == -1) {
@@ -127,9 +127,9 @@ Begin
 				}
 			}
 		}//如果没有最后一个点，这里补上
-		if (validIndexArr[ArrLength(validIndexArr)-1] != ArrLength(highArr)-1) {	
+		if (validIndexArr[ArrLength(validIndexArr)-1] != ArrLength(lowArr)-1) {	
 			ArrAdd(validIndexArr, ArrLength(lowArr)-1);
-			ArrAdd(validValueArr, lowArr[i]);
+			ArrAdd(validValueArr, lowArr[ArrLength(lowArr)-1]);
 		}
 	}
 	Commentary("validIndexArr size:"+Text(ArrLength(validIndexArr)));
